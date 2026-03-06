@@ -1,0 +1,38 @@
+{
+    "project_name": "Sample Stickman Video",
+    "language": "en-us",
+    "target_duration_min": 0.3,
+    "total_words": 45,
+    "scenes": [
+        {
+            "scene_id": 1,
+            "text": "Welcome to the world of Stickman adventures. Today we are going to explore something truly amazing and fun.",
+            "word_count": 18,
+            "expected_duration": 7.2,
+            "audio_path": "storage/cache/scene_001.wav",
+            "bg_prompt": "A bright sunny park with green grass and blue sky, cartoon style",
+            "bg_seed": 42,
+            "character_state": "wave"
+        },
+        {
+            "scene_id": 2,
+            "text": "Look at this beautiful place. The trees are tall and the flowers bloom everywhere around us.",
+            "word_count": 16,
+            "expected_duration": 6.4,
+            "audio_path": "storage/cache/scene_002.wav",
+            "bg_prompt": "A magical forest with colorful flowers and tall oak trees, cartoon style",
+            "bg_seed": 42,
+            "character_state": "point"
+        },
+        {
+            "scene_id": 3,
+            "text": "That was a great journey. See you next time for more exciting adventures ahead.",
+            "word_count": 14,
+            "expected_duration": 5.6,
+            "audio_path": "storage/cache/scene_003.wav",
+            "bg_prompt": "A sunset scene with orange and purple sky over rolling hills, cartoon style",
+            "bg_seed": 42,
+            "character_state": "happy"
+        }
+    ]
+}

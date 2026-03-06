@@ -1,0 +1,62 @@
+{
+  "project": {
+    "language": "en-us",
+    "target_duration_min": 11,
+    "tolerance_sec": 30,
+    "wpm": 150,
+    "resolution": "1920x1080",
+    "fps": 30
+  },
+  "models": {
+    "kokoro_path": "D:/Workspace/kokoro_tts/kokoro",
+    "kokoro_voice": "af_bella",
+    "sd_checkpoint": "D:/AI_Models/Flux/flux1-dev.safetensors"
+  },
+  "character": {
+    "type": "svg_vector",
+    "base_color": "#000000",
+    "accent_color": "#3498db",
+    "line_width": 3
+  },
+  "llm": {
+    "enabled": false,
+    "mode": "mock",
+    "mock_file_path": "./data/sample_project.json"
+  },
+  "image_provider": {
+    "enabled": false,
+    "mode": "placeholder",
+    "ready_for_ai": true,
+    "api_key": "",
+    "model": "flux-dev",
+    "placeholder": {
+      "use_gradient": true,
+      "show_prompt_text": true,
+      "base_color": "#3498db"
+    }
+  },
+  "optimization": {
+    "cache_enabled": true,
+    "audio_parallel_workers": 4,
+    "render_concurrency": 2,
+    "skip_render_if_exists": true
+  },
+  "thumbnail": {
+    "enabled": true,
+    "resolution": "1280x720",
+    "style": "high_contrast"
+  },
+  "render": {
+    "codec": "h264",
+    "crf": 23,
+    "threads": 0
+  },
+  "video": {
+    "resolution": "1920x1080",
+    "fps": 30
+  },
+  "paths": {
+    "ffmpeg": "D:/Workspace/ffmpeg-8.0.1-full_build/bin/ffmpeg.exe",
+    "output_root": "./storage/renders"
+  }
+}

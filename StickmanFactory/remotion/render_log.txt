@@ -1,0 +1,133 @@
+Bundling 6%
+Bundling 18%
+Bundling 62%
+Bundling 69%
+Bundling 74%
+Bundling 80%
+Bundling 85%
+Bundling 90%
+Bundling 95%
+Bundling 100%
+Getting composition
+[90mComposition          VideoRoot[39m
+[90mCodec                h264[39m
+[90mOutput               output.mp4[39m
+[90mConcurrency          8x[39m
+Rendered 0/120
+[40m Tab 0, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+[40m Tab 1, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+[40m Tab 2, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+[40m Tab 4, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+[40m Tab 3, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+[40m Tab 5, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+[40m Tab 6, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+[40m Tab 7, node_modules/react-dom/cjs/react-dom.production.min.js:187 [49m [31m[0mTypeError: staticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[0m[39m
+[31m[0m    at staticFile (http://localhost:3000/bundle.js:9569:11)[0m[39m
+[31m[0m    at Scene (http://localhost:3000/bundle.js:382:96)[0m[39m
+[31m[0m    at Nh (http://localhost:3000/bundle.js:804:137)[0m[39m
+[31m[0m    at Vk (http://localhost:3000/bundle.js:933:337)[0m[39m
+[31m[0m    at Uk (http://localhost:3000/bundle.js:923:389)[0m[39m
+[31m[0m    at Tk (http://localhost:3000/bundle.js:923:320)[0m[39m
+[31m[0m    at Ik (http://localhost:3000/bundle.js:923:180)[0m[39m
+[31m[0m    at Nk (http://localhost:3000/bundle.js:914:88)[0m[39m
+[31m[0m    at Gk (http://localhost:3000/bundle.js:911:429)[0m[39m
+[31m[0m    at J (http://localhost:3000/bundle.js:1114:203)[0m[39m
+
+[31mAn error occurred while rendering frame 5:[39m
+[31m[41m[37m TypeError [39m[31m[49m[39m [31mstaticFile() does not support absolute paths - got "D:/Workspace/Video_factory/StickmanFactory/storage/cache/audio/audio_001.wav". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths[39m
+
+at [4mnode_modules/remotion/dist/esm/index.mjs:8129[24m
+[90m8127[39m │ [90m  throw new TypeError(`staticFile() does not support relative paths - got "${path}". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths`);[39m
+[90m8128[39m │ [90m}[39m
+8129 │ if (path.startsWith("/Users") || path.startsWith("/home") || path.startsWith("/tmp") || path.startsWith("/etc") || path.startsWith("/opt") || path.startsWith("/var") || path.startsWith("C:") || path.startsWith("D:") || path.startsWith("E:")) {
+[90m8130[39m │ [90m  throw new TypeError(`staticFile() does not support absolute paths - got "${path}". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths`);[39m
+[90m8131[39m │ [90m}[39m
+[90m8132[39m │ [90mif (path.startsWith("public/")) {[39m
+
+
+at [4msrc/components/Scene.tsx:63[24m
+[90m61[39m │ [90m           <Subtitle[39m
+[90m62[39m │ [90m               text={data.text}[39m
+63 │                durationInFrames={durationInFrames}
+[90m64[39m │ [90m           />[39m
+[90m65[39m │ 
+[90m66[39m │ [90m           {/* Audio layer */}[39m
+[90mat Nh [94m(node_modules/react-dom/cjs/react-dom.production.min.js:159)[39m[90m[39m
+[90mat Vk [94m(node_modules/react-dom/cjs/react-dom.production.min.js:288)[39m[90m[39m
+[90mat Uk [94m(node_modules/react-dom/cjs/react-dom.production.min.js:278)[39m[90m[39m
+[90mat Tk [94m(node_modules/react-dom/cjs/react-dom.production.min.js:278)[39m[90m[39m
+[90mat Ik [94m(node_modules/react-dom/cjs/react-dom.production.min.js:278)[39m[90m[39m
+[90mat Nk [94m(node_modules/react-dom/cjs/react-dom.production.min.js:269)[39m[90m[39m
+[90mat Gk [94m(node_modules/react-dom/cjs/react-dom.production.min.js:266)[39m[90m[39m
+[90mat J [94m(node_modules/scheduler/cjs/scheduler.production.min.js:12)[39m[90m[39m
+[90mat R [94m(node_modules/scheduler/cjs/scheduler.production.min.js:13)[39m[90m[39m
