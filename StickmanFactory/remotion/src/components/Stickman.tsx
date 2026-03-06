@@ -167,13 +167,25 @@ export const Stickman: React.FC<StickmanProps> = ({
     // Bounce effect only on the start of a scene (activeFrame close to 0) if no previousAction is given
     const currentScale = scale * (previousAction === "idle" && activeFrame < 15 ? interpolate(transitionProgress, [0, 1], [0.8, 1]) : 1);
 
+    // --- ANIMATION POLISH (Phase B) ---
+    // Simple pseudo-random noise for micro-movements
+    const seed = (activeFrame % 1000) / 1000;
+    const noiseX = Math.sin(frame * 0.5 + seed) * 1.2;
+    const noiseY = Math.cos(frame * 0.4 + seed) * 0.8;
+
+    // Secondary motion: Sway
+    const sway = Math.sin(frame / 15) * 1.5;
+
+    // Follow-through: Limbs lag behind horizontal movement
+    const followThrough = isMoving ? interpolate(activeFrame % 30, [0, 15, 30], [-2, 2, -2]) : 0;
+
     const svgStyle: React.CSSProperties = {
         position: "absolute",
         bottom: action === "sitting" ? "2%" : "5%",
         right: `${10 + positionX + moveTranslate}%`,
         width: `${200 * currentScale}px`,
         height: `${300 * currentScale}px`,
-        transform: `scaleY(${scaleY})`,
+        transform: `scaleY(${scaleY}) translateX(${noiseX + sway}px) translateY(${noiseY}px) rotate(${sway * 0.5}deg)`,
         transformOrigin: "bottom center",
         opacity: interpolate(activeFrame, [0, 10], [0, 1], { extrapolateRight: "clamp" })
     };

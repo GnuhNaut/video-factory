@@ -55,8 +55,9 @@ export const Subtitle: React.FC<SubtitleProps> = ({
 
     const textStyle: React.CSSProperties = {
         color: "#FFFFFF",
-        fontSize: "32px",
-        fontFamily, // Used loaded Inter font
+        // Auto-sizing: smaller font for longer text
+        fontSize: words.length > 30 ? "24px" : words.length > 15 ? "28px" : "32px",
+        fontFamily: `${fontFamily}, serif`, // Fallback to system serif
         fontWeight: 700,
         textAlign: "center",
         lineHeight: 1.4,
