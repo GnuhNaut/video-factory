@@ -1,5 +1,9 @@
 import React from "react";
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
+import { loadFont } from "@remotion/google-fonts/Inter";
+
+// Load font at the top level
+const { fontFamily } = loadFont();
 
 interface SubtitleProps {
     text: string;
@@ -52,7 +56,7 @@ export const Subtitle: React.FC<SubtitleProps> = ({
     const textStyle: React.CSSProperties = {
         color: "#FFFFFF",
         fontSize: "32px",
-        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        fontFamily, // Used loaded Inter font
         fontWeight: 700,
         textAlign: "center",
         lineHeight: 1.4,

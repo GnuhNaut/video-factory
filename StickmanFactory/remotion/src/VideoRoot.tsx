@@ -14,9 +14,22 @@ interface SceneData {
     bg_image_path?: string;
     bg_prompt: string;
     bg_seed: number;
-    character_state: string;
+    character_state?: string;
     character_action?: string;
     camera_effect?: string;
+    visual_timeline?: Array<{
+        time_offset: number;
+        bg_prompt: string;
+        action: string;
+        b_roll?: string;
+        emotion_icon?: string;
+    }>;
+    actions?: Array<{
+        time_start: number;
+        action: string;
+        emotion_icon?: string;
+        b_roll?: string
+    }>;
 }
 
 interface ProjectData {

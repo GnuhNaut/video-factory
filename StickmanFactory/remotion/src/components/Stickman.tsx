@@ -2,17 +2,85 @@ import React from "react";
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 
 interface StickmanProps {
-    action: string; // idle, wave, point, walk, happy, sad, explain, counting, writing, sitting, fist_pump
-    actionFrame?: number; // relative frame to sync animation bouncing on pose change
-    positionX?: number; // base position 0 is right 10%
+    action: string;
+    previousAction?: string; // used for smooth transition
+    actionFrame?: number;
+    positionX?: number;
     color?: string;
     accentColor?: string;
     lineWidth?: number;
     scale?: number;
 }
 
+// Define explicit joint coordinates
+interface StickmanPose {
+    headX: number; headY: number; neckY: number;
+    shoulderLX: number; shoulderLY: number; handLX: number; handLY: number;
+    shoulderRX: number; shoulderRY: number; elbowRX?: number; elbowRY?: number; handRX: number; handRY: number;
+    bodyBottom: number;
+    kneeLX?: number; kneeLY?: number; footLX: number; footLY: number;
+    kneeRX?: number; kneeRY?: number; footRX: number; footRY: number;
+}
+
+const getPose = (action: string, waveAngle: number, walkOffset: number, actionFrame: number): StickmanPose => {
+    // Base joints
+    const pose: StickmanPose = {
+        headX: 100, headY: 45, neckY: 70,
+        shoulderLX: 60, shoulderLY: 95, handLX: 50, handLY: 165,
+        shoulderRX: 140, shoulderRY: 95, handRX: 150, handRY: 165,
+        bodyBottom: 180,
+        footLX: 65, footLY: 280, kneeLX: 70, kneeLY: 230,
+        footRX: 135, footRY: 280, kneeRX: 130, kneeRY: 230
+    };
+
+    // Right arm
+    if (action === "wave") {
+        pose.elbowRX = 155; pose.elbowRY = 60;
+        pose.handRX = 175 + waveAngle * 0.5; pose.handRY = 25 - waveAngle * 0.3;
+    } else if (action === "point" || action === "counting" || action === "pointing") {
+        pose.handRX = 195; pose.handRY = 95;
+    } else if (action === "explain") {
+        pose.handRX = 185; pose.handRY = 65;
+    } else if (action === "writing") {
+        pose.handRX = 160 + Math.sin(actionFrame / 2) * 10;
+        pose.handRY = 130 + Math.cos(actionFrame / 3) * 5;
+    } else if (action === "fist_pump") {
+        pose.handRX = 160; pose.handRY = 20;
+    }
+
+    // Left arm
+    if (action === "explain") {
+        pose.handLX = 15; pose.handLY = 65;
+    } else if (action === "fist_pump") {
+        pose.handLX = 40; pose.handLY = 20;
+    }
+
+    // Legs
+    if (action === "walk" || action === "walking") {
+        pose.kneeLX = 70 + walkOffset; pose.kneeLY = 230;
+        pose.footLX = 65 + walkOffset; pose.footLY = 280;
+        pose.kneeRX = 130 - walkOffset; pose.kneeRY = 230;
+        pose.footRX = 135 - walkOffset; pose.footRY = 280;
+    } else if (action === "run") {
+        pose.kneeLX = 70 + walkOffset * 1.5; pose.kneeLY = 210;
+        pose.footLX = 40 + walkOffset * 2; pose.footLY = 270;
+        pose.kneeRX = 130 - walkOffset * 1.5; pose.kneeRY = 210;
+        pose.footRX = 160 - walkOffset * 2; pose.footRY = 270;
+        pose.headY = 50; // Lean forward slightly
+    } else if (action === "sitting") {
+        pose.kneeLX = 40; pose.kneeLY = pose.bodyBottom;
+        pose.footLX = 40; pose.footLY = 250;
+        pose.kneeRX = 160; pose.kneeRY = pose.bodyBottom;
+        pose.footRX = 160; pose.footRY = 250;
+        pose.bodyBottom = 170; // Slightly lower
+    }
+
+    return pose;
+};
+
 export const Stickman: React.FC<StickmanProps> = ({
     action = "idle",
+    previousAction = "idle",
     actionFrame,
     positionX = 0,
     color = "#000000",
@@ -24,179 +92,113 @@ export const Stickman: React.FC<StickmanProps> = ({
     const { fps } = useVideoConfig();
     const activeFrame = actionFrame !== undefined ? actionFrame : frame;
 
-    // Animation: tay vẫy nhẹ theo frame
-    const waveAngle = interpolate(
-        frame % 30,
-        [0, 15, 30],
-        [0, 15, 0],
-        { extrapolateRight: "clamp" }
-    );
+    // Active wave/walk cycles
+    // Active wave/walk cycles
+    const waveAngle = interpolate(frame % 30, [0, 15, 30], [0, 15, 0], { extrapolateRight: "clamp" });
 
-    // Animation: walk cycle and translation
-    const walkOffset = interpolate(
-        frame % 30, // Faster walk cycle 0.5s
-        [0, 7.5, 15, 22.5, 30],
-        [0, 8, 0, -8, 0],
-        { extrapolateRight: "clamp" }
-    );
+    // Run is faster than walk
+    const cycleDuration = action === "run" ? 15 : 30;
+    const walkOffset = interpolate(frame % cycleDuration, [0, cycleDuration / 4, cycleDuration / 2, cycleDuration * 0.75, cycleDuration], [0, 12, 0, -12, 0], { extrapolateRight: "clamp" });
 
-    const walkTranslate = action === "walk" ? interpolate(
-        activeFrame, // Use activeFrame so walk starts from current position on action change
-        [0, 300], // move 30% of screen over 10s
-        [0, -30],
-        { extrapolateRight: "clamp" }
-    ) : 0;
-
-    // Breathing animation nhẹ - Scale Y lên xuống nhịp nhàng
-    // Math.sin cho phép tính toán deterministically cho từng frame độc lập
-    const breatheAmount = Math.sin(frame / 10) * 0.02; // Nhún Y 2%
-    const scaleY = 1 + breatheAmount;
-
-    // Hiệu ứng nảy (spring bounce) khi đổi dáng (actionFrame 0)
-    const bounce = spring({
+    // Transition progress between previousAction and action
+    const transitionProgress = spring({
         frame: activeFrame,
         fps,
-        config: { damping: 10, mass: 0.5, stiffness: 100 },
+        config: { damping: 14, mass: 0.5, stiffness: 120 },
     });
 
-    // Kết hợp scale truyền vào + spring bounce
-    const currentScale = scale * interpolate(bounce, [0, 1], [0.8, 1]);
+    const prevPose = getPose(previousAction, previousAction === "wave" ? waveAngle : 0, previousAction === "walk" ? walkOffset : 0, activeFrame);
+    const targetPose = getPose(action, action === "wave" ? waveAngle : 0, action === "walk" ? walkOffset : 0, activeFrame);
 
-    // Joints cố định
-    const headX = 100, headY = 45, headR = 25;
-    const neckY = 70;
-    const bodyBottom = 180;
-    const shoulderLX = 60, shoulderLY = 95;
-    const shoulderRX = 140, shoulderRY = 95;
+    // Interpolate all joints
+    const interp = (key: keyof StickmanPose) => {
+        const p1 = prevPose[key] ?? targetPose[key] ?? 0;
+        const p2 = targetPose[key] ?? prevPose[key] ?? 0;
+        return p1 + (p2 - p1) * transitionProgress;
+    };
 
-    // Tay trái luôn buông
-    const handLX = 50, handLY = 165;
+    const pose: StickmanPose = {
+        headX: interp("headX"), headY: interp("headY"), neckY: interp("neckY"),
+        shoulderLX: interp("shoulderLX"), shoulderLY: interp("shoulderLY"), handLX: interp("handLX"), handLY: interp("handLY"),
+        shoulderRX: interp("shoulderRX"), shoulderRY: interp("shoulderRY"), handRX: interp("handRX"), handRY: interp("handRY"),
+        bodyBottom: interp("bodyBottom"),
+        footLX: interp("footLX"), footLY: interp("footLY"), footRX: interp("footRX"), footRY: interp("footRY")
+    };
 
-    // Tay phải: thay đổi theo action
-    let rightArmPath = "";
-    if (action === "wave") {
-        const angle = waveAngle;
-        const elbowX = 155, elbowY = 60;
-        const handRX = 175 + angle * 0.5, handRY = 25 - angle * 0.3;
-        rightArmPath = `M${shoulderRX},${shoulderRY} L${elbowX},${elbowY} L${handRX},${handRY}`;
-    } else if (action === "point" || action === "counting") {
-        rightArmPath = `M${shoulderRX},${shoulderRY} L195,95`;
-    } else if (action === "explain") {
-        rightArmPath = `M${shoulderRX},${shoulderRY} L185,65`;
-    } else if (action === "writing" || action === "counting") {
-        // Hand moves slightly around the chest area
-        const moveX = 160 + Math.sin(activeFrame / 2) * 10;
-        const moveY = 130 + Math.cos(activeFrame / 3) * 5;
-        rightArmPath = `M${shoulderRX},${shoulderRY} L${moveX},${moveY}`;
-    } else if (action === "fist_pump") {
-        rightArmPath = `M${shoulderRX},${shoulderRY} L160,20`;
-    } else {
-        rightArmPath = `M${shoulderRX},${shoulderRY} L150,165`;
+    // Optional knees & elbows if present in either
+    if (prevPose.elbowRX !== undefined || targetPose.elbowRX !== undefined) {
+        pose.elbowRX = interp("elbowRX"); pose.elbowRY = interp("elbowRY");
+    }
+    if (prevPose.kneeLX !== undefined || targetPose.kneeLX !== undefined) {
+        pose.kneeLX = interp("kneeLX"); pose.kneeLY = interp("kneeLY");
+        pose.kneeRX = interp("kneeRX"); pose.kneeRY = interp("kneeRY");
     }
 
-    // Tay trái (Explain mode tay trái cũng mở)
-    let leftArmPath = `M${headX},${neckY} L${shoulderLX},${shoulderLY} L${handLX},${handLY}`;
-    if (action === "explain") {
-        leftArmPath = `M${headX},${neckY} L${shoulderLX},${shoulderLY} L15,65`;
-    } else if (action === "fist_pump") {
-        leftArmPath = `M${headX},${neckY} L${shoulderLX},${shoulderLY} L40,20`;
-    }
+    // SVG Paths
+    const rightArmPath = pose.elbowRX !== undefined
+        ? `M${pose.shoulderRX},${pose.shoulderRY} L${pose.elbowRX},${pose.elbowRY} L${pose.handRX},${pose.handRY}`
+        : `M${pose.shoulderRX},${pose.shoulderRY} L${pose.handRX},${pose.handRY}`;
 
-    // Chân: walk hoặc idle hoặc sitting
-    let legLPath = "", legRPath = "";
-    if (action === "walk") {
-        const offset = walkOffset;
-        legLPath = `M${80},${bodyBottom} L${55 + offset},225 L${35 + offset},275`;
-        legRPath = `M${120},${bodyBottom} L${145 - offset},225 L${165 - offset},275`;
-    } else if (action === "sitting") {
-        legLPath = `M${80},${bodyBottom} L40,${bodyBottom} L40,250`;
-        legRPath = `M${120},${bodyBottom} L160,${bodyBottom} L160,250`;
-    } else {
-        legLPath = `M${80},${bodyBottom} L70,230 L65,280`;
-        legRPath = `M${120},${bodyBottom} L130,230 L135,280`;
-    }
+    const leftArmPath = `M${pose.headX},${pose.neckY} L${pose.shoulderLX},${pose.shoulderLY} L${pose.handLX},${pose.handLY}`;
 
-    // Biểu cảm: miệng
-    let mouthPath = "";
-    if (action === "happy") {
-        mouthPath = `M${headX - 8},${headY + 8} Q${headX},${headY + 18} ${headX + 8},${headY + 8}`;
-    } else if (action === "sad") {
-        mouthPath = `M${headX - 6},${headY + 14} Q${headX},${headY + 6} ${headX + 6},${headY + 14}`;
-    } else {
-        mouthPath = `M${headX - 6},${headY + 10} L${headX + 6},${headY + 10}`;
-    }
+    const legLPath = pose.kneeLX !== undefined
+        ? `M80,${pose.bodyBottom} L${pose.kneeLX},${pose.kneeLY} L${pose.footLX},${pose.footLY}`
+        : `M80,${pose.bodyBottom} L${pose.footLX},${pose.footLY}`;
+
+    const legRPath = pose.kneeRX !== undefined
+        ? `M120,${pose.bodyBottom} L${pose.kneeRX},${pose.kneeRY} L${pose.footRX},${pose.footRY}`
+        : `M120,${pose.bodyBottom} L${pose.footRX},${pose.footRY}`;
+
+    // Mouth calculation (does not need complex interp, just snap for simplicity or small blend)
+    let mouthPath = `M${pose.headX - 6},${pose.headY + 10} L${pose.headX + 6},${pose.headY + 10}`;
+    if (action === "happy") mouthPath = `M${pose.headX - 8},${pose.headY + 8} Q${pose.headX},${pose.headY + 18} ${pose.headX + 8},${pose.headY + 8}`;
+    else if (action === "sad" || action === "tired") mouthPath = `M${pose.headX - 6},${pose.headY + 14} Q${pose.headX},${pose.headY + 6} ${pose.headX + 6},${pose.headY + 14}`;
+
+    // Horizontal movement for walk/run
+    const isMoving = action === "walk" || action === "walking" || action === "run";
+    const moveTranslate = isMoving
+        ? interpolate(activeFrame, [0, 90], [50, -50], { extrapolateRight: "clamp" })
+        : 0;
+
+    // Breathing effect
+    const breatheAmount = Math.sin(frame / 10) * 0.02;
+    const scaleY = 1 + breatheAmount;
+
+    // Bounce effect only on the start of a scene (activeFrame close to 0) if no previousAction is given
+    const currentScale = scale * (previousAction === "idle" && activeFrame < 15 ? interpolate(transitionProgress, [0, 1], [0.8, 1]) : 1);
 
     const svgStyle: React.CSSProperties = {
         position: "absolute",
         bottom: action === "sitting" ? "2%" : "5%",
-        right: `${10 + positionX + walkTranslate}%`,
+        right: `${10 + positionX + moveTranslate}%`,
         width: `${200 * currentScale}px`,
         height: `${300 * currentScale}px`,
-        transform: `scaleY(${scaleY}) translateX(${interpolate(spring({ frame: activeFrame, fps, config: { damping: 15 } }), [0, 1], [50, 0])}px)`,
+        transform: `scaleY(${scaleY})`,
         transformOrigin: "bottom center",
         opacity: interpolate(activeFrame, [0, 10], [0, 1], { extrapolateRight: "clamp" })
     };
 
     return (
-        <svg
-            viewBox="0 0 200 300"
-            style={svgStyle}
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            {/* Head */}
-            <circle
-                cx={headX} cy={headY} r={headR}
-                fill="none" stroke={color} strokeWidth={lineWidth}
-                strokeLinecap="round"
-            />
+        <svg viewBox="0 0 200 300" style={svgStyle} xmlns="http://www.w3.org/2000/svg">
+            <line x1={pose.headX} y1={pose.neckY} x2={pose.headX} y2={pose.bodyBottom} stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
+            <path d={leftArmPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
+            <path d={rightArmPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
+            <path d={legLPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
+            <path d={legRPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
 
-            {/* Eyes */}
-            <circle cx={headX - 8} cy={headY - 3} r={2.5} fill={color} />
-            <circle cx={headX + 8} cy={headY - 3} r={2.5} fill={color} />
+            <circle cx={pose.headX} cy={pose.headY} r={25} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
+            <circle cx={pose.headX - 8} cy={pose.headY - 3} r={2.5} fill={color} />
+            <circle cx={pose.headX + 8} cy={pose.headY - 3} r={2.5} fill={color} />
+            <path d={mouthPath} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" />
 
-            {/* Mouth */}
-            <path d={mouthPath} fill="none" stroke={color} strokeWidth={2}
-                strokeLinecap="round" />
-
-            {/* Body */}
-            <line x1={headX} y1={neckY} x2={headX} y2={bodyBottom}
-                stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-
-            {/* Left arm */}
-            <path d={leftArmPath}
-                fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-
-            {/* Right arm */}
-            <path d={rightArmPath}
-                fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-
-            {/* Wave hand circle */}
-            {action === "wave" && (
-                <circle cx={175 + waveAngle * 0.5} cy={25 - waveAngle * 0.3}
-                    r={4} fill={color} />
-            )}
-
-            {/* Point arrow */}
-            {action === "point" && (
+            {action === "wave" && <circle cx={pose.handRX} cy={pose.handRY} r={4} fill={color} />}
+            {(action === "point" || action === "pointing" || action === "counting") && (
                 <>
-                    <line x1={185} y1={88} x2={195} y2={95}
-                        stroke={color} strokeWidth={2} strokeLinecap="round" />
-                    <line x1={185} y1={102} x2={195} y2={95}
-                        stroke={color} strokeWidth={2} strokeLinecap="round" />
+                    <line x1={pose.handRX - 10} y1={pose.handRY - 7} x2={pose.handRX} y2={pose.handRY} stroke={color} strokeWidth={2} strokeLinecap="round" />
+                    <line x1={pose.handRX - 10} y1={pose.handRY + 7} x2={pose.handRX} y2={pose.handRY} stroke={color} strokeWidth={2} strokeLinecap="round" />
                 </>
             )}
-
-            {/* Legs */}
-            <path d={legLPath} fill="none" stroke={color} strokeWidth={lineWidth}
-                strokeLinecap="round" />
-            <path d={legRPath} fill="none" stroke={color} strokeWidth={lineWidth}
-                strokeLinecap="round" />
-
-            {/* Sad tear */}
-            {action === "sad" && (
-                <circle cx={headX - 10} cy={headY + 3} r={2}
-                    fill={accentColor} opacity={0.8} />
-            )}
+            {(action === "sad" || action === "tired") && <circle cx={pose.headX - 10} cy={pose.headY + 3} r={2} fill={accentColor} opacity={0.8} />}
         </svg>
     );
 };
