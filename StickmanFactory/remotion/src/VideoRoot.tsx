@@ -1,5 +1,5 @@
 import React from "react";
-import { Composition, Sequence } from "remotion";
+import { Composition, Sequence, getInputProps } from "remotion";
 import { Scene } from "./components/Scene";
 import { Thumbnail } from "./components/Thumbnail";
 
@@ -71,17 +71,24 @@ const FPS = 30;
  */
 const VideoComposition: React.FC<ProjectData> = (props) => {
     const scenes = props.scenes || [];
+    const TRANSITION_FRAMES = 15; // 0.5s fade overlap
 
-    // Tính from frame cho từng scene
     let currentFrame = 0;
 
     return (
         <>
             {scenes.map((scene, i) => {
                 const duration = scene.actual_duration || scene.expected_duration || 5;
-                const durationInFrames = Math.ceil(duration * FPS);
+                const baseDurationInFrames = Math.ceil(duration * FPS);
+
+                // Add transition padding to duration so it overlaps cleanly
+                const isLast = i === scenes.length - 1;
+                const durationInFrames = baseDurationInFrames + (isLast ? 0 : TRANSITION_FRAMES);
+
                 const fromFrame = currentFrame;
-                currentFrame += durationInFrames;
+
+                // Next scene starts before this one ends
+                currentFrame += baseDurationInFrames;
 
                 return (
                     <Sequence
@@ -90,7 +97,11 @@ const VideoComposition: React.FC<ProjectData> = (props) => {
                         durationInFrames={durationInFrames}
                         name={`Scene ${scene.scene_id}`}
                     >
-                        <Scene data={scene} durationInFrames={durationInFrames} />
+                        <Scene
+                            data={scene}
+                            durationInFrames={durationInFrames}
+                            transitionFrames={isLast ? 0 : TRANSITION_FRAMES}
+                        />
                     </Sequence>
                 );
             })}
@@ -109,32 +120,38 @@ const ThumbnailComposition: React.FC<ThumbnailData> = (props) => {
  * RemotionRoot: Đăng ký Composition cho Remotion CLI & Studio.
  */
 export const RemotionRoot: React.FC = () => {
-    // Tính tổng duration
-    const totalDuration = defaultProps.scenes.reduce(
+    // Determine props: Use getInputProps() if available, otherwise defaultProps
+    const inputProps = getInputProps() as unknown as ProjectData;
+    const finalProps = (inputProps && inputProps.scenes && inputProps.scenes.length > 0)
+        ? inputProps
+        : defaultProps;
+
+    // Tính tổng duration dựa trên dynamic props
+    const totalDuration = finalProps.scenes.reduce(
         (sum, s) => sum + (s.actual_duration || s.expected_duration || 5),
         0
     );
-    const totalFrames = Math.ceil(totalDuration * FPS);
+    const totalFrames = Math.max(1, Math.ceil(totalDuration * FPS));
 
     return (
         <>
             <Composition
                 id="VideoRoot"
-                component={VideoComposition}
+                component={VideoComposition as any}
                 durationInFrames={totalFrames}
                 fps={FPS}
                 width={1920}
                 height={1080}
-                defaultProps={defaultProps}
+                defaultProps={defaultProps as any}
             />
             <Composition
                 id="ThumbnailComposition"
-                component={ThumbnailComposition}
+                component={ThumbnailComposition as any}
                 durationInFrames={1}
                 fps={FPS}
                 width={1280}
                 height={720}
-                defaultProps={defaultThumbnailProps}
+                defaultProps={defaultThumbnailProps as any}
             />
         </>
     );

@@ -2,8 +2,9 @@ import React from "react";
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 
 interface StickmanProps {
-    action: string; // idle, wave, point, walk, happy, sad
+    action: string; // idle, wave, point, walk, happy, sad, explain, counting, writing, sitting, fist_pump
     actionFrame?: number; // relative frame to sync animation bouncing on pose change
+    positionX?: number; // base position 0 is right 10%
     color?: string;
     accentColor?: string;
     lineWidth?: number;
@@ -13,6 +14,7 @@ interface StickmanProps {
 export const Stickman: React.FC<StickmanProps> = ({
     action = "idle",
     actionFrame,
+    positionX = 0,
     color = "#000000",
     accentColor = "#3498db",
     lineWidth = 3,
@@ -20,6 +22,7 @@ export const Stickman: React.FC<StickmanProps> = ({
 }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
+    const activeFrame = actionFrame !== undefined ? actionFrame : frame;
 
     // Animation: tay vẫy nhẹ theo frame
     const waveAngle = interpolate(
@@ -29,7 +32,7 @@ export const Stickman: React.FC<StickmanProps> = ({
         { extrapolateRight: "clamp" }
     );
 
-    // Animation: walk cycle
+    // Animation: walk cycle and translation
     const walkOffset = interpolate(
         frame % 30, // Faster walk cycle 0.5s
         [0, 7.5, 15, 22.5, 30],
@@ -37,13 +40,19 @@ export const Stickman: React.FC<StickmanProps> = ({
         { extrapolateRight: "clamp" }
     );
 
+    const walkTranslate = action === "walk" ? interpolate(
+        activeFrame, // Use activeFrame so walk starts from current position on action change
+        [0, 300], // move 30% of screen over 10s
+        [0, -30],
+        { extrapolateRight: "clamp" }
+    ) : 0;
+
     // Breathing animation nhẹ - Scale Y lên xuống nhịp nhàng
     // Math.sin cho phép tính toán deterministically cho từng frame độc lập
     const breatheAmount = Math.sin(frame / 10) * 0.02; // Nhún Y 2%
     const scaleY = 1 + breatheAmount;
 
     // Hiệu ứng nảy (spring bounce) khi đổi dáng (actionFrame 0)
-    const activeFrame = actionFrame !== undefined ? actionFrame : frame;
     const bounce = spring({
         frame: activeFrame,
         fps,
@@ -70,18 +79,38 @@ export const Stickman: React.FC<StickmanProps> = ({
         const elbowX = 155, elbowY = 60;
         const handRX = 175 + angle * 0.5, handRY = 25 - angle * 0.3;
         rightArmPath = `M${shoulderRX},${shoulderRY} L${elbowX},${elbowY} L${handRX},${handRY}`;
-    } else if (action === "point") {
+    } else if (action === "point" || action === "counting") {
         rightArmPath = `M${shoulderRX},${shoulderRY} L195,95`;
+    } else if (action === "explain") {
+        rightArmPath = `M${shoulderRX},${shoulderRY} L185,65`;
+    } else if (action === "writing" || action === "counting") {
+        // Hand moves slightly around the chest area
+        const moveX = 160 + Math.sin(activeFrame / 2) * 10;
+        const moveY = 130 + Math.cos(activeFrame / 3) * 5;
+        rightArmPath = `M${shoulderRX},${shoulderRY} L${moveX},${moveY}`;
+    } else if (action === "fist_pump") {
+        rightArmPath = `M${shoulderRX},${shoulderRY} L160,20`;
     } else {
         rightArmPath = `M${shoulderRX},${shoulderRY} L150,165`;
     }
 
-    // Chân: walk hoặc idle
+    // Tay trái (Explain mode tay trái cũng mở)
+    let leftArmPath = `M${headX},${neckY} L${shoulderLX},${shoulderLY} L${handLX},${handLY}`;
+    if (action === "explain") {
+        leftArmPath = `M${headX},${neckY} L${shoulderLX},${shoulderLY} L15,65`;
+    } else if (action === "fist_pump") {
+        leftArmPath = `M${headX},${neckY} L${shoulderLX},${shoulderLY} L40,20`;
+    }
+
+    // Chân: walk hoặc idle hoặc sitting
     let legLPath = "", legRPath = "";
     if (action === "walk") {
         const offset = walkOffset;
         legLPath = `M${80},${bodyBottom} L${55 + offset},225 L${35 + offset},275`;
         legRPath = `M${120},${bodyBottom} L${145 - offset},225 L${165 - offset},275`;
+    } else if (action === "sitting") {
+        legLPath = `M${80},${bodyBottom} L40,${bodyBottom} L40,250`;
+        legRPath = `M${120},${bodyBottom} L160,${bodyBottom} L160,250`;
     } else {
         legLPath = `M${80},${bodyBottom} L70,230 L65,280`;
         legRPath = `M${120},${bodyBottom} L130,230 L135,280`;
@@ -99,12 +128,13 @@ export const Stickman: React.FC<StickmanProps> = ({
 
     const svgStyle: React.CSSProperties = {
         position: "absolute",
-        bottom: "5%",
-        right: "10%",
+        bottom: action === "sitting" ? "2%" : "5%",
+        right: `${10 + positionX + walkTranslate}%`,
         width: `${200 * currentScale}px`,
         height: `${300 * currentScale}px`,
-        transform: `scaleY(${scaleY})`,
+        transform: `scaleY(${scaleY}) translateX(${interpolate(spring({ frame: activeFrame, fps, config: { damping: 15 } }), [0, 1], [50, 0])}px)`,
         transformOrigin: "bottom center",
+        opacity: interpolate(activeFrame, [0, 10], [0, 1], { extrapolateRight: "clamp" })
     };
 
     return (
@@ -133,7 +163,7 @@ export const Stickman: React.FC<StickmanProps> = ({
                 stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
 
             {/* Left arm */}
-            <path d={`M${headX},${neckY} L${shoulderLX},${shoulderLY} L${handLX},${handLY}`}
+            <path d={leftArmPath}
                 fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
 
             {/* Right arm */}
