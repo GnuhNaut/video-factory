@@ -77,12 +77,12 @@ def render_video(
             return output_path
 
     # Chuan bi props cho Remotion
-    # Copy cac file sang thu muc public cua remotion de tranh loi security cua Chrome
     public_cache_dir = os.path.join(REMOTION_DIR, "public", "cache")
     os.makedirs(os.path.join(public_cache_dir, "audio"), exist_ok=True)
     os.makedirs(os.path.join(public_cache_dir, "images"), exist_ok=True)
 
-    for scene in project_data.get("scenes", []):
+    all_scenes = project_data.get("scenes", [])
+    for scene in all_scenes:
         for key in ["audio_path", "bg_image_path"]:
             path = scene.get(key, "")
             if path:
@@ -98,83 +98,155 @@ def render_video(
                 if os.path.exists(src_abs):
                     shutil.copy2(src_abs, dest_abs)
 
-                # Truyen path tuong doi cho Remotion staticFile()
                 scene[key] = f"cache/{dest_sub}/{filename}"
 
-    # Luu props tam
-    props_path = os.path.join(REMOTION_DIR, "props.json")
-    with open(props_path, "w", encoding="utf-8") as f:
-        json.dump(project_data, f, ensure_ascii=False)
-
-    # Tinh tong frames
-    fps = get_nested(config, "video", "fps",
-                     default=get_nested(config, "project", "fps", default=30))
-    total_duration = sum(
-        s.get("actual_duration", s.get("expected_duration", 5))
-        for s in project_data.get("scenes", [])
-    )
-    total_frames = int(total_duration * fps)
-
-    # Render config
+    fps = get_nested(config, "video", "fps", default=get_nested(config, "project", "fps", default=30))
     codec = get_nested(config, "render", "codec", default="h264")
     crf = get_nested(config, "render", "crf", default=23)
     concurrency = get_nested(config, "optimization", "render_concurrency", default=2)
 
+    # ==========================================
+    # CHUNKING LOGIC (Phase 2)
+    # Gom nhom cac scene sao cho tong thoi gian <= ~90s
+    # ==========================================
+    chunks = []
+    current_chunk_scenes = []
+    current_chunk_duration = 0.0
+    CHUNK_MAX_DURATION = 90.0
+
+    for idx, scene in enumerate(all_scenes):
+        duration = scene.get("actual_duration", scene.get("expected_duration", 5))
+        if current_chunk_duration + duration > CHUNK_MAX_DURATION and current_chunk_scenes:
+            # Luu chunk hien tai
+            chunks.append({
+                "chunk_id": len(chunks) + 1,
+                "scenes": current_chunk_scenes,
+                "duration": current_chunk_duration
+            })
+            # Reset
+            current_chunk_scenes = [scene]
+            current_chunk_duration = duration
+        else:
+            current_chunk_scenes.append(scene)
+            current_chunk_duration += duration
+            
+    # Add last chunk
+    if current_chunk_scenes:
+        chunks.append({
+            "chunk_id": len(chunks) + 1,
+            "scenes": current_chunk_scenes,
+            "duration": current_chunk_duration
+        })
+
     print("=" * 60)
-    print("  [REMOTION RENDERER]")
+    print("  [REMOTION RENDERER - CHUNKING]")
     print("=" * 60)
     print(f"  Input: {project_json_path}")
     print(f"  Output: {output_path}")
-    print(f"  Scenes: {len(project_data.get('scenes', []))}")
-    print(f"  Duration: {total_duration:.1f}s ({total_duration/60:.1f} min)")
-    print(f"  Frames: {total_frames} @ {fps}fps")
-    print(f"  Codec: {codec} | CRF: {crf} | Concurrency: {concurrency}")
+    print(f"  Total Chunks: {len(chunks)}")
+    print(f"  Codec: {codec} | CRF: {crf} | FPS: {fps} | Concurrency: {concurrency}")
     print()
 
     start_time = time.time()
-
-    # Chay Remotion render
     npx_cmd = "npx.cmd" if os.name == "nt" else "npx"
-    cmd = [
-        npx_cmd, "remotion", "render",
-        "src/index.ts",
-        "VideoRoot",
-        output_path,
-        f"--props={props_path}",
-        f"--fps={fps}",
-        f"--codec={codec}",
-        f"--crf={crf}",
-        f"--concurrency={concurrency}",
-        "--log=verbose",
-    ]
+    rendered_chunks = []
 
-    print(f"  Command: {' '.join(cmd[:6])}...")
-    print()
+    for chunk in chunks:
+        chunk_id = chunk["chunk_id"]
+        c_scenes = chunk["scenes"]
+        c_duration = chunk["duration"]
+        c_frames = int(c_duration * fps)
+        
+        # Prepare chunk JSON
+        chunk_data = project_data.copy()
+        chunk_data["scenes"] = c_scenes
+        chunk_props_path = os.path.join(REMOTION_DIR, f"props_chunk_{chunk_id}.json")
+        with open(chunk_props_path, "w", encoding="utf-8") as f:
+            json.dump(chunk_data, f, ensure_ascii=False)
+            
+        chunk_output_path = os.path.join(output_dir, f"{safe_title}_chunk_{chunk_id}.mp4")
+        
+        print(f"  -> Rendering Chunk {chunk_id}/{len(chunks)} ({len(c_scenes)} scenes, {c_duration:.1f}s, {c_frames} frames)")
+        cmd = [
+            npx_cmd, "remotion", "render",
+            "src/index.ts",
+            "VideoRoot",
+            chunk_output_path,
+            f"--props={chunk_props_path}",
+            f"--fps={fps}",
+            f"--codec={codec}",
+            f"--crf={crf}",
+            f"--concurrency={concurrency}",
+            "--log=error", # giam log de tranh spam terminal
+        ]
+        
+        try:
+            result = subprocess.run(
+                cmd,
+                cwd=REMOTION_DIR,
+                capture_output=False,
+                text=True,
+                timeout=3600,
+            )
+            
+            if result.returncode == 0 and os.path.exists(chunk_output_path):
+                rendered_chunks.append(chunk_output_path)
+            else:
+                logger.error(f"Chunk {chunk_id} render failed with exit code: {result.returncode}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Chunk {chunk_id} render exception: {e}")
+            return None
 
+    # Tat ca cac chunk da render xong. Tien hanh ghep noi FFmpeg
+    print("=" * 60)
+    print("  [FFMPEG CONCATENATION]")
+    print("=" * 60)
+    
+    list_txt_path = os.path.join(output_dir, "concat_list.txt")
+    with open(list_txt_path, "w", encoding="utf-8") as f:
+        for chunk_file in rendered_chunks:
+            # QUAN TRONG: Dung ten file tuong doi theo yeu cau de tranh roi loan \ va / tren Windows
+            rel_chunk = os.path.basename(chunk_file)
+            f.write(f"file '{rel_chunk}'\n")
+            
     try:
-        result = subprocess.run(
-            cmd,
-            cwd=REMOTION_DIR,
-            capture_output=False,
-            text=True,
-            timeout=3600,  # 1 hour max
-        )
-
+        ffmpeg_cmd = [
+            "ffmpeg", "-y", "-f", "concat", "-safe", "0", 
+            "-i", os.path.basename(list_txt_path), "-c", "copy", os.path.basename(output_path)
+        ]
+        
+        print(f"  Command: {' '.join(ffmpeg_cmd)}")
+        concat_result = subprocess.run(ffmpeg_cmd, cwd=output_dir, capture_output=True, text=True)
+        
+        if concat_result.returncode != 0:
+            logger.error(f"FFmpeg concat failed: {concat_result.stderr}")
+            return None
+            
         elapsed = time.time() - start_time
 
-        if result.returncode == 0:
-            file_size = os.path.getsize(output_path) if os.path.exists(output_path) else 0
+        if os.path.exists(output_path):
+            file_size = os.path.getsize(output_path)
             print(f"\n{'=' * 60}")
             print(f"  [RENDER COMPLETE]")
             print(f"  Output: {output_path}")
             print(f"  Size: {file_size / 1024 / 1024:.1f} MB")
-            print(f"  Render time: {elapsed:.1f}s")
+            print(f"  Total time: {elapsed:.1f}s")
             print(f"{'=' * 60}")
+            
+            # Clean up chunks
+            for c in rendered_chunks:
+                try: os.remove(c)
+                except: pass
+            try: os.remove(list_txt_path)
+            except: pass
+            
             logger.info(f"Render complete: {output_path} ({file_size/1024/1024:.1f} MB, {elapsed:.1f}s)")
             return output_path
         else:
-            print(f"\n[ERROR] Render failed (exit code: {result.returncode})")
-            logger.error(f"Remotion render failed: exit code {result.returncode}")
+            print(f"\n[ERROR] FFmpeg concat failed to produce output file.")
+            logger.error(f"Output file missing after concat: {output_path}")
             return None
 
     except FileNotFoundError:

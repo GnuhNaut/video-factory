@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
+        "start": "remotion studio",
         "studio": "remotion studio",
         "render": "remotion render",
         "build": "remotion bundle",

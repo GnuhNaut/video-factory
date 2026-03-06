@@ -4,6 +4,33 @@ json_schema.py - Định nghĩa schema cho kịch bản video
 Sử dụng jsonschema để validate cấu trúc JSON project files.
 Mỗi project chứa danh sách scenes với các trường bắt buộc.
 """
+# Schema cho một action keyframe trong scene (thay thế cho character_state tĩnh tĩnh)
+ACTION_KEYFRAME_SCHEMA = {
+    "type": "object",
+    "required": ["time_start", "pose"],
+    "properties": {
+        "time_start": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Start time of the action relative to scene start (in seconds)"
+        },
+        "pose": {
+            "type": "string",
+            "enum": ["idle", "wave", "point", "walk", "sad", "happy", "explain", "pointing", "counting", "writing", "sitting", "fist_pump"],
+            "description": "Stickman character pose/state"
+        },
+        "b_roll": {
+            "type": "string",
+            "description": "Optional B-roll description to show at this keyframe"
+        },
+        "emotion_icon": {
+            "type": "string",
+            "enum": ["sweat", "question", "bulb", "heart", "anger", "none"],
+            "description": "Optional emotion icon to appear"
+        }
+    },
+    "additionalProperties": False
+}
 
 # Schema cho một scene trong project
 SCENE_SCHEMA = {
@@ -16,7 +43,7 @@ SCENE_SCHEMA = {
         "audio_path",
         "bg_prompt",
         "bg_seed",
-        "character_state"
+        "actions"
     ],
     "properties": {
         "scene_id": {
@@ -53,10 +80,11 @@ SCENE_SCHEMA = {
             "minimum": 0,
             "description": "Seed for background generation (ensures style consistency)"
         },
-        "character_state": {
-            "type": "string",
-            "enum": ["idle", "wave", "point", "walk", "sad", "happy"],
-            "description": "Stickman character state for this scene"
+        "actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": ACTION_KEYFRAME_SCHEMA,
+            "description": "List of character action keyframes in this scene"
         }
     },
     "additionalProperties": False

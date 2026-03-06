@@ -3,6 +3,7 @@ import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 
 interface StickmanProps {
     action: string; // idle, wave, point, walk, happy, sad
+    actionFrame?: number; // relative frame to sync animation bouncing on pose change
     color?: string;
     accentColor?: string;
     lineWidth?: number;
@@ -11,6 +12,7 @@ interface StickmanProps {
 
 export const Stickman: React.FC<StickmanProps> = ({
     action = "idle",
+    actionFrame,
     color = "#000000",
     accentColor = "#3498db",
     lineWidth = 3,
@@ -40,9 +42,10 @@ export const Stickman: React.FC<StickmanProps> = ({
     const breatheAmount = Math.sin(frame / 10) * 0.02; // Nhún Y 2%
     const scaleY = 1 + breatheAmount;
 
-    // Hiệu ứng nảy (spring bounce) khi load scene (frame 0)
+    // Hiệu ứng nảy (spring bounce) khi đổi dáng (actionFrame 0)
+    const activeFrame = actionFrame !== undefined ? actionFrame : frame;
     const bounce = spring({
-        frame,
+        frame: activeFrame,
         fps,
         config: { damping: 10, mass: 0.5, stiffness: 100 },
     });

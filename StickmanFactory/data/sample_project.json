@@ -26,8 +26,16 @@
             "audio_path": "",
             "bg_prompt": "Abstract background with question marks, soft blue tones, minimalist",
             "bg_seed": 1001,
-            "character_state": "idle",
-            "character_action": "wave",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "wave"
+                },
+                {
+                    "time_start": 5,
+                    "pose": "idle"
+                }
+            ],
             "camera_effect": "zoom_in_slow"
         },
         {
@@ -39,8 +47,16 @@
             "audio_path": "",
             "bg_prompt": "Pattern geometry background, golden ratio spiral, clean style",
             "bg_seed": 1001,
-            "character_state": "happy",
-            "character_action": "pointing",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "happy"
+                },
+                {
+                    "time_start": 4,
+                    "pose": "point"
+                }
+            ],
             "camera_effect": "none"
         },
         {
@@ -52,8 +68,16 @@
             "audio_path": "",
             "bg_prompt": "Three pillars illustration, minimalist icons, white background",
             "bg_seed": 1001,
-            "character_state": "idle",
-            "character_action": "counting",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "idle"
+                },
+                {
+                    "time_start": 6,
+                    "pose": "point"
+                }
+            ],
             "camera_effect": "pan_right"
         },
         {
@@ -65,8 +89,16 @@
             "audio_path": "",
             "bg_prompt": "Calendar timeline, checkmarks, green and white theme",
             "bg_seed": 1001,
-            "character_state": "idle",
-            "character_action": "writing",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "idle"
+                },
+                {
+                    "time_start": 5,
+                    "pose": "point"
+                }
+            ],
             "camera_effect": "zoom_in"
         },
         {
@@ -78,8 +110,12 @@
             "audio_path": "",
             "bg_prompt": "Water drops hitting rock, cinematic lighting, minimalist",
             "bg_seed": 1001,
-            "character_state": "idle",
-            "character_action": "none",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "idle"
+                }
+            ],
             "camera_effect": "none"
         },
         {
@@ -91,8 +127,16 @@
             "audio_path": "",
             "bg_prompt": "Bamboo forest swaying in wind, serene atmosphere",
             "bg_seed": 1001,
-            "character_state": "happy",
-            "character_action": "walking",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "happy"
+                },
+                {
+                    "time_start": 4,
+                    "pose": "walk"
+                }
+            ],
             "camera_effect": "pan_left"
         },
         {
@@ -104,8 +148,16 @@
             "audio_path": "",
             "bg_prompt": "Stormy weather vs calm forest, contrast illustration",
             "bg_seed": 1001,
-            "character_state": "idle",
-            "character_action": "pointing",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "idle"
+                },
+                {
+                    "time_start": 6,
+                    "pose": "point"
+                }
+            ],
             "camera_effect": "zoom_out"
         },
         {
@@ -117,8 +169,16 @@
             "audio_path": "",
             "bg_prompt": "Empty cup being filled with water, simple icons",
             "bg_seed": 1001,
-            "character_state": "sad",
-            "character_action": "sitting",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "sad"
+                },
+                {
+                    "time_start": 5,
+                    "pose": "idle"
+                }
+            ],
             "camera_effect": "none"
         },
         {
@@ -130,8 +190,16 @@
             "audio_path": "",
             "bg_prompt": "Marathon runner resting, finish line in distance",
             "bg_seed": 1001,
-            "character_state": "happy",
-            "character_action": "walking",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "happy"
+                },
+                {
+                    "time_start": 7,
+                    "pose": "walk"
+                }
+            ],
             "camera_effect": "zoom_in_slow"
         },
         {
@@ -143,8 +211,16 @@
             "audio_path": "",
             "bg_prompt": "Three pillars combined, pyramid structure, gold accents",
             "bg_seed": 1001,
-            "character_state": "idle",
-            "character_action": "wave",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "idle"
+                },
+                {
+                    "time_start": 4,
+                    "pose": "wave"
+                }
+            ],
             "camera_effect": "zoom_out"
         },
         {
@@ -156,8 +232,16 @@
             "audio_path": "",
             "bg_prompt": "Graph line going up, green arrow, minimalist chart",
             "bg_seed": 1001,
-            "character_state": "happy",
-            "character_action": "pointing",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "happy"
+                },
+                {
+                    "time_start": 6,
+                    "pose": "point"
+                }
+            ],
             "camera_effect": "pan_up"
         },
         {
@@ -169,8 +253,16 @@
             "audio_path": "",
             "bg_prompt": "Brain with gear inside, action oriented background",
             "bg_seed": 1001,
-            "character_state": "point",
-            "character_action": "fist_pump",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "point"
+                },
+                {
+                    "time_start": 8,
+                    "pose": "happy"
+                }
+            ],
             "camera_effect": "zoom_in"
         },
         {
@@ -182,8 +274,12 @@
             "audio_path": "",
             "bg_prompt": "Dominoes falling, first one being pushed",
             "bg_seed": 1001,
-            "character_state": "walk",
-            "character_action": "walking",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "walk"
+                }
+            ],
             "camera_effect": "none"
         },
         {
@@ -195,8 +291,16 @@
             "audio_path": "",
             "bg_prompt": "Open door with light shining through, hopeful atmosphere",
             "bg_seed": 1001,
-            "character_state": "happy",
-            "character_action": "wave",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "happy"
+                },
+                {
+                    "time_start": 5,
+                    "pose": "wave"
+                }
+            ],
             "camera_effect": "zoom_out_slow"
         },
         {
@@ -208,8 +312,16 @@
             "audio_path": "",
             "bg_prompt": "Community group icons, connected dots, blue theme",
             "bg_seed": 1001,
-            "character_state": "happy",
-            "character_action": "wave",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "happy"
+                },
+                {
+                    "time_start": 6,
+                    "pose": "wave"
+                }
+            ],
             "camera_effect": "none"
         },
         {
@@ -221,8 +333,16 @@
             "audio_path": "",
             "bg_prompt": "Subscribe button animation, clean background",
             "bg_seed": 1001,
-            "character_state": "wave",
-            "character_action": "pointing",
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "wave"
+                },
+                {
+                    "time_start": 4,
+                    "pose": "point"
+                }
+            ],
             "camera_effect": "zoom_in"
         }
     ]
