@@ -1,5 +1,5 @@
 import React from "react";
-import { useCurrentFrame, interpolate } from "remotion";
+import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 
 interface SubtitleProps {
     text: string;
@@ -11,20 +11,26 @@ export const Subtitle: React.FC<SubtitleProps> = ({
     durationInFrames,
 }) => {
     const frame = useCurrentFrame();
+    const { fps } = useVideoConfig();
 
-    // Fade in/out
+    // Fade in/out scene total
     const opacity = interpolate(
         frame,
-        [0, 10, durationInFrames - 10, durationInFrames],
+        [0, 5, durationInFrames - 5, durationInFrames],
         [0, 1, 1, 0],
         { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
     );
 
-    // Cắt text nếu quá dài (an toàn cho màn hình)
-    const maxLength = 120;
+    // Cắt text nếu quá dài
+    const maxLength = 150;
     const displayText = text.length > maxLength
         ? text.substring(0, maxLength) + "..."
         : text;
+
+    const words = displayText.split(" ");
+
+    // Spread word animations over 80% of the scene duration
+    const durationPerWord = (durationInFrames * 0.8) / Math.max(words.length, 1);
 
     const containerStyle: React.CSSProperties = {
         position: "absolute",
@@ -57,7 +63,49 @@ export const Subtitle: React.FC<SubtitleProps> = ({
     return (
         <div style={containerStyle}>
             <div style={textBoxStyle}>
-                <span style={textStyle}>{displayText}</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' }}>
+                    {words.map((word, index) => {
+                        // Delay mỗi từ tuần tự
+                        const delayForThisWord = index * durationPerWord;
+
+                        // Tính toán spring bounce cho từ này
+                        const wordScale = spring({
+                            fps,
+                            frame: frame - delayForThisWord,
+                            config: {
+                                damping: 12,
+                                stiffness: 200,
+                                mass: 0.5,
+                            },
+                        });
+
+                        // Đổi màu vàng highlight một nhịp (nảy xong về trắng)
+                        const colorHighlight = interpolate(
+                            frame - delayForThisWord,
+                            [0, 5, 20],
+                            [0, 1, 0],
+                            { extrapolateRight: "clamp", extrapolateLeft: "clamp" }
+                        );
+
+                        const r = Math.round(255);
+                        const g = Math.round(interpolate(colorHighlight, [0, 1], [255, 215]));
+                        const b = Math.round(interpolate(colorHighlight, [0, 1], [255, 0]));
+
+                        return (
+                            <span
+                                key={index}
+                                style={{
+                                    ...textStyle,
+                                    transform: `scale(${wordScale})`,
+                                    display: 'inline-block',
+                                    color: `rgb(${r}, ${g}, ${b})`,
+                                }}
+                            >
+                                {word}
+                            </span>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

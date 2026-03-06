@@ -14,60 +14,32 @@ export const Background: React.FC<BackgroundProps> = ({
 }) => {
     const frame = useCurrentFrame();
 
-    // Ken Burns effects
+    // Ken Burns effects (Continuous smooth zoom/pan across the entire scene)
     let transform = "";
-    switch (effect) {
-        case "zoom_in":
-            const scaleIn = interpolate(frame, [0, durationInFrames], [1, 1.15], {
-                extrapolateRight: "clamp",
-            });
-            transform = `scale(${scaleIn})`;
-            break;
-
-        case "zoom_in_slow":
-            const scaleInSlow = interpolate(frame, [0, durationInFrames], [1, 1.08], {
-                extrapolateRight: "clamp",
-            });
-            transform = `scale(${scaleInSlow})`;
-            break;
-
-        case "zoom_out":
-            const scaleOut = interpolate(frame, [0, durationInFrames], [1.15, 1], {
-                extrapolateRight: "clamp",
-            });
-            transform = `scale(${scaleOut})`;
-            break;
-
-        case "zoom_out_slow":
-            const scaleOutSlow = interpolate(frame, [0, durationInFrames], [1.08, 1], {
-                extrapolateRight: "clamp",
-            });
-            transform = `scale(${scaleOutSlow})`;
-            break;
-
-        case "pan_left":
-            const panL = interpolate(frame, [0, durationInFrames], [0, -30], {
-                extrapolateRight: "clamp",
-            });
-            transform = `scale(1.1) translateX(${panL}px)`;
-            break;
-
-        case "pan_right":
-            const panR = interpolate(frame, [0, durationInFrames], [0, 30], {
-                extrapolateRight: "clamp",
-            });
-            transform = `scale(1.1) translateX(${panR}px)`;
-            break;
-
-        case "pan_up":
-            const panU = interpolate(frame, [0, durationInFrames], [0, -20], {
-                extrapolateRight: "clamp",
-            });
-            transform = `scale(1.1) translateY(${panU}px)`;
-            break;
-
-        default:
-            transform = "scale(1)";
+    if (effect === "zoom_in") {
+        const scaleIn = interpolate(frame, [0, durationInFrames], [1, 1.15], { extrapolateRight: "clamp" });
+        transform = `scale(${scaleIn})`;
+    } else if (effect === "zoom_in_slow") {
+        const scaleInSlow = interpolate(frame, [0, durationInFrames], [1, 1.05], { extrapolateRight: "clamp" });
+        transform = `scale(${scaleInSlow})`;
+    } else if (effect === "zoom_out") {
+        const scaleOut = interpolate(frame, [0, durationInFrames], [1.15, 1], { extrapolateRight: "clamp" });
+        transform = `scale(${scaleOut})`;
+    } else if (effect === "zoom_out_slow") {
+        const scaleOutSlow = interpolate(frame, [0, durationInFrames], [1.05, 1], { extrapolateRight: "clamp" });
+        transform = `scale(${scaleOutSlow})`;
+    } else if (effect === "pan_left") {
+        const panL = interpolate(frame, [0, durationInFrames], [0, -40], { extrapolateRight: "clamp" });
+        transform = `scale(1.1) translateX(${panL}px)`;
+    } else if (effect === "pan_right") {
+        const panR = interpolate(frame, [0, durationInFrames], [0, 40], { extrapolateRight: "clamp" });
+        transform = `scale(1.1) translateX(${panR}px)`;
+    } else if (effect === "pan_up") {
+        const panU = interpolate(frame, [0, durationInFrames], [0, -30], { extrapolateRight: "clamp" });
+        transform = `scale(1.1) translateY(${panU}px)`;
+    } else {
+        // none
+        transform = "scale(1)";
     }
 
     const containerStyle: React.CSSProperties = {

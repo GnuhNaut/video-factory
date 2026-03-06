@@ -1,5 +1,5 @@
 import React from "react";
-import { useCurrentFrame, interpolate, Easing } from "remotion";
+import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 
 interface StickmanProps {
     action: string; // idle, wave, point, walk, happy, sad
@@ -17,6 +17,7 @@ export const Stickman: React.FC<StickmanProps> = ({
     scale = 1.0,
 }) => {
     const frame = useCurrentFrame();
+    const { fps } = useVideoConfig();
 
     // Animation: tay vẫy nhẹ theo frame
     const waveAngle = interpolate(
@@ -28,19 +29,26 @@ export const Stickman: React.FC<StickmanProps> = ({
 
     // Animation: walk cycle
     const walkOffset = interpolate(
-        frame % 40,
-        [0, 10, 20, 30, 40],
-        [0, 5, 0, -5, 0],
+        frame % 30, // Faster walk cycle 0.5s
+        [0, 7.5, 15, 22.5, 30],
+        [0, 8, 0, -8, 0],
         { extrapolateRight: "clamp" }
     );
 
-    // Breathing animation nhẹ
-    const breathe = interpolate(
-        frame % 60,
-        [0, 30, 60],
-        [1, 1.01, 1],
-        { extrapolateRight: "clamp" }
-    );
+    // Breathing animation nhẹ - Scale Y lên xuống nhịp nhàng
+    // Math.sin cho phép tính toán deterministically cho từng frame độc lập
+    const breatheAmount = Math.sin(frame / 10) * 0.02; // Nhún Y 2%
+    const scaleY = 1 + breatheAmount;
+
+    // Hiệu ứng nảy (spring bounce) khi load scene (frame 0)
+    const bounce = spring({
+        frame,
+        fps,
+        config: { damping: 10, mass: 0.5, stiffness: 100 },
+    });
+
+    // Kết hợp scale truyền vào + spring bounce
+    const currentScale = scale * interpolate(bounce, [0, 1], [0.8, 1]);
 
     // Joints cố định
     const headX = 100, headY = 45, headR = 25;
@@ -90,9 +98,9 @@ export const Stickman: React.FC<StickmanProps> = ({
         position: "absolute",
         bottom: "5%",
         right: "10%",
-        width: `${200 * scale}px`,
-        height: `${300 * scale}px`,
-        transform: `scale(${breathe})`,
+        width: `${200 * currentScale}px`,
+        height: `${300 * currentScale}px`,
+        transform: `scaleY(${scaleY})`,
         transformOrigin: "bottom center",
     };
 
