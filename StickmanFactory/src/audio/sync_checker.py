@@ -161,6 +161,39 @@ def update_durations(scenes: list, config: dict = None) -> dict:
     }
 
 
+def apply_timeline_scaling(scenes: list) -> list:
+    """
+    Adjust visual_timeline offsets based on actual audio duration.
+    If actual duration differs from expected, we scale the timeline to match.
+    """
+    print("⏳ Scaling visual timelines to match audio...")
+    
+    for scene in scenes:
+        actual = scene.get("actual_duration", 0)
+        expected = scene.get("expected_duration", 0)
+        timeline = scene.get("visual_timeline", [])
+        
+        if not timeline or actual <= 0 or expected <= 0:
+            continue
+            
+        ratio = actual / expected
+        
+        # Only scale if drift is > 2% to avoid noise
+        if abs(1.0 - ratio) < 0.02:
+            continue
+            
+        logger.info(f"Scaling scene {scene.get('scene_id')} timeline by {ratio:.3f}x")
+        
+        for item in timeline:
+            if "time_offset" in item:
+                # Scale offset
+                new_offset = round(item["time_offset"] * ratio, 3)
+                # Ensure it doesn't exceed actual duration
+                item["time_offset"] = min(new_offset, actual - 0.1)
+                
+    return scenes
+
+
 if __name__ == "__main__":
     print("Usage: Gọi update_durations(scenes) sau khi sinh audio.")
     print("Module này thường được gọi từ orchestrator.py.")

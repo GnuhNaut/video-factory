@@ -40,6 +40,25 @@ def validate_project_json(json_data: dict) -> tuple:
         })
 
     is_valid = len(errors) == 0
+    if not is_valid:
+        return False, errors
+    
+    # Custom validation cho visual_timeline
+    for i, scene in enumerate(json_data.get("scenes", [])):
+        scene_id = scene.get("scene_id", i + 1)
+        duration = scene.get("actual_duration", scene.get("expected_duration", 0))
+        
+        timeline = scene.get("visual_timeline", [])
+        for j, event in enumerate(timeline):
+            time_offset = event.get("time_offset", 0)
+            if time_offset > duration:
+                errors.append({
+                    "path": f"scenes[{i}] → visual_timeline[{j}] → time_offset",
+                    "message": f"time_offset ({time_offset}) exceeds scene duration ({duration})",
+                    "validator": "custom"
+                })
+                is_valid = False
+
     return is_valid, errors
 
 

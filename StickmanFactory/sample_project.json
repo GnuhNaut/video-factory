@@ -1,38 +1,661 @@
 {
-    "project_name": "Sample Stickman Video",
-    "language": "en-us",
-    "target_duration_min": 0.3,
-    "total_words": 45,
+    "project_name": "The Loneliness Economy: The Price of Isolation",
+    "language": "en-US",
+    "target_duration_min": 10.5,
+    "total_words": 385,
     "scenes": [
         {
             "scene_id": 1,
-            "text": "Welcome to the world of Stickman adventures. Today we are going to explore something truly amazing and fun.",
-            "word_count": 18,
-            "expected_duration": 7.2,
-            "audio_path": "storage/cache/scene_001.wav",
-            "bg_prompt": "A bright sunny park with green grass and blue sky, cartoon style",
-            "bg_seed": 42,
-            "character_state": "wave"
+            "text": "Loneliness is no longer just a feeling; it is a booming global industry.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "visual_timeline": [
+                {
+                    "time_offset": 0,
+                    "bg_prompt": "Cinematic wide shot of a crowded city street where every person is looking down at a glowing phone, dusk lighting",
+                    "action": "walk",
+                    "camera_effect": "zoom_in"
+                },
+                {
+                    "time_offset": 3.0,
+                    "bg_prompt": "Close up camera of one lonely person on the street",
+                    "action": "idle",
+                    "emotion_icon": "sad",
+                    "camera_effect": "pan_left"
+                }
+            ]
         },
         {
             "scene_id": 2,
-            "text": "Look at this beautiful place. The trees are tall and the flowers bloom everywhere around us.",
-            "word_count": 16,
-            "expected_duration": 6.4,
-            "audio_path": "storage/cache/scene_002.wav",
-            "bg_prompt": "A magical forest with colorful flowers and tall oak trees, cartoon style",
-            "bg_seed": 42,
-            "character_state": "point"
+            "text": "We are living in the Age of Connectivity, yet we are fundamentally alone.",
+            "word_count": 13,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "visual_timeline": [
+                {
+                    "time_offset": 0,
+                    "bg_prompt": "An empty modern apartment with one single chair facing a window, night time",
+                    "action": "run",
+                    "camera_effect": "zoom_in"
+                },
+                {
+                    "time_offset": 2.5,
+                    "bg_prompt": "Back of a person sitting alone looking at city lights",
+                    "action": "sitting",
+                    "emotion_icon": "bulb",
+                    "b_roll": "a glowing smartphone screen"
+                }
+            ]
         },
         {
             "scene_id": 3,
-            "text": "That was a great journey. See you next time for more exciting adventures ahead.",
-            "word_count": 14,
-            "expected_duration": 5.6,
-            "audio_path": "storage/cache/scene_003.wav",
-            "bg_prompt": "A sunset scene with orange and purple sky over rolling hills, cartoon style",
-            "bg_seed": 42,
-            "character_state": "happy"
+            "text": "As traditional social structures dissolve, a new economy is rising to replace them.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "Abstract 3D visualization of social networks breaking apart into isolated nodes, neon lines, dark background",
+            "bg_seed": 103,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "rotate"
+                },
+                {
+                    "time_start": 3.5,
+                    "action": "highlight",
+                    "emotion_icon": "link",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 4,
+            "text": "Single-person households are the fastest-growing demographic in major cities worldwide.",
+            "word_count": 11,
+            "expected_duration": 5.5,
+            "audio_path": "",
+            "bg_prompt": "High-angle shot of a micro-apartment building exterior, glowing windows showing individuals alone, night time",
+            "bg_seed": 104,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "tilt_up"
+                },
+                {
+                    "time_start": 2.0,
+                    "action": "fast_cut",
+                    "emotion_icon": "home",
+                    "b_roll": "clock ticking"
+                }
+            ]
+        },
+        {
+            "scene_id": 5,
+            "text": "This shift has transformed how we consume, eat, and spend our free time.",
+            "word_count": 13,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "bg_prompt": "A single tray of sushi on a table, soft lighting, focus on the solitary meal",
+            "bg_seed": 105,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "zoom_out"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "fade_in",
+                    "emotion_icon": "utensils",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 6,
+            "text": "Enter the Loneliness Economy: businesses that profit from our need for companionship.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "A futuristic storefront with digital signs advertising 'Rental Friends' and 'Digital Hugs', vaporwave aesthetic",
+            "bg_seed": 106,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "tracking"
+                },
+                {
+                    "time_start": 4.0,
+                    "action": "glitch_effect",
+                    "emotion_icon": "money",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 7,
+            "text": "Dating apps have turned romance into a gamified subscription model.",
+            "word_count": 10,
+            "expected_duration": 5.0,
+            "audio_path": "",
+            "bg_prompt": "Close-up of fingers swiping rapidly on a bright smartphone screen, colorful app interface",
+            "bg_seed": 107,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "fast_motion"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "freeze_frame",
+                    "emotion_icon": "heart",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 8,
+            "text": "We are paying monthly fees just for the hope of a human connection.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "Stack of gold coins next to a holographic heart icon, glowing embers in the background",
+            "bg_seed": 108,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "panning"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "sparkle",
+                    "emotion_icon": "currency_exchange",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 9,
+            "text": "But apps are only the beginning of this trillion-dollar industry.",
+            "word_count": 11,
+            "expected_duration": 5.5,
+            "audio_path": "",
+            "bg_prompt": "A digital stock market chart showing a sharp upward trend, overlaid with human silhouettes",
+            "bg_seed": 109,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "scroll_up"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "pulse",
+                    "emotion_icon": "trending_up",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 10,
+            "text": "In Japan, you can now rent a family to fill an empty home.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "A group of actors sitting around a dinner table smiling, but the lighting feels artificial and staged",
+            "bg_seed": 110,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "static_shot"
+                },
+                {
+                    "time_start": 4.0,
+                    "action": "slow_zoom",
+                    "emotion_icon": "groups",
+                    "b_roll": "staged family photo"
+                }
+            ]
+        },
+        {
+            "scene_id": 11,
+            "text": "In the West, professional cuddling services provide a brief moment of warmth.",
+            "word_count": 12,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "bg_prompt": "Two people embracing in a soft-lit, cozy studio, focus on the hands, warm color palette",
+            "bg_seed": 111,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "panning_right"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "soft_focus",
+                    "emotion_icon": "volunteer_activism",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 12,
+            "text": "Human contact is being outsourced to the service sector.",
+            "word_count": 10,
+            "expected_duration": 5.0,
+            "audio_path": "",
+            "bg_prompt": "A robotic hand shaking a human hand, white clinical background, high contrast",
+            "bg_seed": 112,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "zoom_in"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "vibrate",
+                    "emotion_icon": "precision_manufacturing",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 13,
+            "text": "Then there is the rise of the AI companion.",
+            "word_count": 10,
+            "expected_duration": 5.0,
+            "audio_path": "",
+            "bg_prompt": "A glowing blue AI avatar floating in a living room, futuristic and ethereal",
+            "bg_seed": 113,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "hover"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "glow",
+                    "emotion_icon": "smart_toy",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 14,
+            "text": "Millions are now forming deep emotional bonds with chatbots.",
+            "word_count": 10,
+            "expected_duration": 5.0,
+            "audio_path": "",
+            "bg_prompt": "Close-up of a person smiling at a screen, text bubbles appearing rapidly with heart emojis",
+            "bg_seed": 114,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "fast_cut"
+                },
+                {
+                    "time_start": 2.0,
+                    "action": "overlay_text",
+                    "emotion_icon": "forum",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 15,
+            "text": "These algorithms are designed to never leave and always agree.",
+            "word_count": 11,
+            "expected_duration": 5.5,
+            "audio_path": "",
+            "bg_prompt": "Infinite lines of code morphing into a smiling human face, Matrix-style green lighting",
+            "bg_seed": 115,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "dolly_zoom"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "smile",
+                    "emotion_icon": "memory",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 16,
+            "text": "The price of this isolation isn’t just emotional; it’s financial.",
+            "word_count": 11,
+            "expected_duration": 5.5,
+            "audio_path": "",
+            "bg_prompt": "A calculator screen showing a rising sum, reflected in a pair of glasses",
+            "bg_seed": 116,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "tilt_down"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "shake",
+                    "emotion_icon": "calculate",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 17,
+            "text": "The 'Loneliness Tax' refers to the extra costs of living alone.",
+            "word_count": 12,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "bg_prompt": "A split screen comparing a single grocery bag and a full family cart, price tags emphasized",
+            "bg_seed": 117,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "wipe_right"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "highlight_price",
+                    "emotion_icon": "payments",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 18,
+            "text": "Higher rent, utility bills, and food costs drain the savings of the isolated.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "Coins falling into a dark void, dramatic shadows, slow motion",
+            "bg_seed": 118,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "slow_motion"
+                },
+                {
+                    "time_start": 4.0,
+                    "action": "fade_out",
+                    "emotion_icon": "money_off",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 19,
+            "text": "Economists estimate loneliness costs billions in lost productivity and health care.",
+            "word_count": 12,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "bg_prompt": "An empty office cubicle in a vast corporate floor, fluorescent lights flickering",
+            "bg_seed": 119,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "static_shot"
+                },
+                {
+                    "time_start": 3.5,
+                    "action": "flicker",
+                    "emotion_icon": "work_off",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 20,
+            "text": "Our bodies respond to isolation with stress, inflammation, and heart disease.",
+            "word_count": 12,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "bg_prompt": "X-ray style animation of a human heart glowing red with heat, dark background",
+            "bg_seed": 120,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "zoom_in"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "pulse_red",
+                    "emotion_icon": "health_and_safety",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 21,
+            "text": "The erosion of public spaces like parks and cafes further drives us inside.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "A neglected park bench with overgrown grass and a 'closed' sign on a gate",
+            "bg_seed": 121,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "panning"
+                },
+                {
+                    "time_start": 3.5,
+                    "action": "blur",
+                    "emotion_icon": "nature",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 22,
+            "text": "Delivery culture allows us to survive without ever interacting with a neighbor.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "A brown cardboard box sitting on a doorstep, seen through a security doorbell camera",
+            "bg_seed": 122,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "fisheye_view"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "static",
+                    "emotion_icon": "local_shipping",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 23,
+            "text": "We have replaced communal dining with solitary screen time.",
+            "word_count": 10,
+            "expected_duration": 5.0,
+            "audio_path": "",
+            "bg_prompt": "A person eating noodles while staring intensely at a laptop, glowing screen, dim room",
+            "bg_seed": 123,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "slow_zoom"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "chew",
+                    "emotion_icon": "computer",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 24,
+            "text": "Parasocial relationships with influencers provide a false sense of friendship.",
+            "word_count": 11,
+            "expected_duration": 5.5,
+            "audio_path": "",
+            "bg_prompt": "A ring light reflected in the eyes of a person watching a video, bright and saturated",
+            "bg_seed": 124,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "close_up"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "sparkle",
+                    "emotion_icon": "visibility",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 25,
+            "text": "We donate to strangers online while our actual neighbors remain unknown.",
+            "word_count": 12,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "bg_prompt": "A digital 'Top Donor' badge appearing on a livestream chat, colorful and animated",
+            "bg_seed": 125,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "scroll"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "pop_up",
+                    "emotion_icon": "volunteer_activism",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 26,
+            "text": "Corporate wellness programs are often just band-aids for systemic burnout.",
+            "word_count": 11,
+            "expected_duration": 5.5,
+            "audio_path": "",
+            "bg_prompt": "A sterile office breakroom with a small plant and a poster saying 'Breathe', cold lighting",
+            "bg_seed": 126,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "tilt_up"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "flicker",
+                    "emotion_icon": "spa",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 27,
+            "text": "Designing cities for cars instead of people has fueled this isolation.",
+            "word_count": 12,
+            "expected_duration": 6.0,
+            "audio_path": "",
+            "bg_prompt": "A massive gray highway intersection with no sidewalks, heavy traffic, smoggy air",
+            "bg_seed": 127,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "drone_shot"
+                },
+                {
+                    "time_start": 3.5,
+                    "action": "speed_up",
+                    "emotion_icon": "directions_car",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 28,
+            "text": "The real solution isn’t found in an app store or a rental service.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "A hand deleting a colorful app from a phone screen, bright natural light",
+            "bg_seed": 128,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "push_button"
+                },
+                {
+                    "time_start": 3.0,
+                    "action": "swipe_away",
+                    "emotion_icon": "delete",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 29,
+            "text": "True connection requires vulnerability, time, and physical presence.",
+            "word_count": 10,
+            "expected_duration": 5.0,
+            "audio_path": "",
+            "bg_prompt": "Two friends sitting on a park bench talking, golden hour sunlight, trees in background",
+            "bg_seed": 129,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "panning"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "smile",
+                    "emotion_icon": "celebration",
+                    "b_roll": "birds flying"
+                }
+            ]
+        },
+        {
+            "scene_id": 30,
+            "text": "It is something that cannot be bought, only built.",
+            "word_count": 10,
+            "expected_duration": 5.0,
+            "audio_path": "",
+            "bg_prompt": "A community garden with diverse people working together, vibrant greens and earthy tones",
+            "bg_seed": 130,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "tilt_up"
+                },
+                {
+                    "time_start": 2.5,
+                    "action": "handshake",
+                    "emotion_icon": "nature_people",
+                    "b_roll": ""
+                }
+            ]
+        },
+        {
+            "scene_id": 31,
+            "text": "In a world profiting from our isolation, choosing community is a radical act.",
+            "word_count": 13,
+            "expected_duration": 6.5,
+            "audio_path": "",
+            "bg_prompt": "A massive group of people holding hands in a circle, top-down drone shot, cinematic",
+            "bg_seed": 131,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "action": "drone_zoom_out"
+                },
+                {
+                    "time_start": 4.0,
+                    "action": "rotate",
+                    "emotion_icon": "public",
+                    "b_roll": ""
+                }
+            ]
         }
     ]
 }

@@ -27,8 +27,8 @@ from src.core.config_loader import load_config, get_nested
 
 logger = logging.getLogger(__name__)
 
-# Sample rate cố định của Kokoro
-SAMPLE_RATE = 24000
+# Standard Sample Rate for Production
+SAMPLE_RATE = 44100
 
 
 def _setup_error_logging(log_dir: str = None):
@@ -91,6 +91,11 @@ class KokoroWrapper:
         kokoro_src = self.kokoro_path
         if kokoro_src and kokoro_src not in sys.path:
             sys.path.insert(0, kokoro_src)
+            # Thêm luôn môi trường ảo (venv) của Kokoro nếu có để tận dụng thư viện (torch, transformers, misaki...)
+            kokoro_site_packages = os.path.join(kokoro_src, "venv", "Lib", "site-packages")
+            if os.path.exists(kokoro_site_packages) and kokoro_site_packages not in sys.path:
+                sys.path.insert(1, kokoro_site_packages)
+                logger.info(f"Added Kokoro venv site-packages to path: {kokoro_site_packages}")
             logger.info(f"Added Kokoro source to path: {kokoro_src}")
 
         try:
@@ -209,8 +214,9 @@ class KokoroWrapper:
                 self.ffmpeg_path,
                 "-y",
                 "-i", audio_path,
-                "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
+                "-af", "loudnorm=I=-16:TP=-1.5:LRA=11,aresample=async=1",
                 "-ar", str(SAMPLE_RATE),
+                "-ac", "1",
                 temp_path
             ]
 

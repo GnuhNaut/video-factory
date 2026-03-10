@@ -121,21 +121,34 @@ def run_all_tests():
     print("=" * 60)
 
 
+def run_full_pipeline(topic: str = None):
+    """Chạy toàn bộ quy trình sinh video."""
+    from src.pipeline.orchestrator import run_pipeline
+    from src.core.logger import setup_logger
+    
+    setup_logger()
+    try:
+        run_pipeline()
+        return True
+    except Exception as e:
+        print(f"❌ Pipeline failed: {e}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="StickmanFactory - AI Video Factory CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  python src/main.py                        Run full pipeline (default)
+  python src/main.py --test-all             Run all diagnostic tests
   python src/main.py --test-config          Test config loading
-  python src/main.py --test-timekeeper      Test time calculator
-  python src/main.py --test-stickman        Test stickman generator
-  python src/main.py --test-validator       Test JSON validator
-  python src/main.py --test-kokoro          Test Kokoro TTS
-  python src/main.py --test-all             Run all tests
         """
     )
 
+    parser.add_argument("--run-pipeline", action="store_true", default=True,
+                        help="Run full video generation pipeline (default)")
     parser.add_argument("--test-config", action="store_true",
                         help="Test config loading")
     parser.add_argument("--test-timekeeper", action="store_true",
@@ -148,6 +161,11 @@ Examples:
                         help="Test Kokoro TTS audio generation")
     parser.add_argument("--test-all", action="store_true",
                         help="Run all tests")
+
+    # Nếu không có argument nào, mặc định là run-pipeline
+    if len(sys.argv) == 1:
+        run_full_pipeline()
+        return
 
     args = parser.parse_args()
 
@@ -163,9 +181,10 @@ Examples:
         test_validator()
     elif args.test_kokoro:
         test_kokoro()
+    elif args.run_pipeline:
+        run_full_pipeline()
     else:
         parser.print_help()
-        print("\n💡 Tip: Use --test-all to run all Phase 1 tests.")
 
 
 if __name__ == "__main__":

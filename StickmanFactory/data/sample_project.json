@@ -19,9 +19,9 @@
     "scenes": [
         {
             "scene_id": 1,
-            "text": "Have you ever wondered why some people seem to succeed effortlessly while others struggle forever? We often think success is about luck, or maybe just working harder than everyone else.",
-            "word_count": 33,
-            "expected_duration": 13.2,
+            "text": "Have you ever wondered why some people seem to succeed effortlessly while others struggle forever?",
+            "word_count": 16,
+            "expected_duration": 6.4,
             "actual_duration": 0,
             "audio_path": "",
             "bg_prompt": "Abstract background with question marks, soft blue tones, minimalist",
@@ -29,32 +29,66 @@
             "actions": [
                 {
                     "time_start": 0,
-                    "pose": "wave"
-                },
-                {
-                    "time_start": 5,
-                    "pose": "idle"
+                    "pose": "wave",
+                    "emotion_icon": "question"
                 }
             ],
             "camera_effect": "zoom_in_slow"
         },
         {
             "scene_id": 2,
-            "text": "But what if I told you there is a hidden logic behind every success story? A pattern that repeats itself across history, business, and even personal relationships.",
-            "word_count": 31,
-            "expected_duration": 12.4,
+            "text": "We often think success is about luck, or maybe just working harder than everyone else.",
+            "word_count": 17,
+            "expected_duration": 6.8,
             "actual_duration": 0,
             "audio_path": "",
-            "bg_prompt": "Pattern geometry background, golden ratio spiral, clean style",
-            "bg_seed": 1001,
+            "bg_prompt": "Office desk with many papers, hard work concept, minimalist",
+            "bg_seed": 1002,
             "actions": [
                 {
                     "time_start": 0,
-                    "pose": "happy"
+                    "pose": "sad",
+                    "emotion_icon": "sweat"
                 },
                 {
-                    "time_start": 4,
-                    "pose": "point"
+                    "time_start": 3,
+                    "pose": "idle"
+                }
+            ],
+            "camera_effect": "none"
+        },
+        {
+            "scene_id": 3,
+            "text": "But what if I told you there is a hidden logic behind every success story?",
+            "word_count": 15,
+            "expected_duration": 6.0,
+            "actual_duration": 0,
+            "audio_path": "",
+            "bg_prompt": "Hidden key in a maze, bright lighting, clean style",
+            "bg_seed": 1003,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "explain",
+                    "emotion_icon": "bulb"
+                }
+            ],
+            "camera_effect": "zoom_in"
+        },
+        {
+            "scene_id": 4,
+            "text": "A pattern that repeats itself across history, business, and even personal relationships.",
+            "word_count": 16,
+            "expected_duration": 6.4,
+            "actual_duration": 0,
+            "audio_path": "",
+            "bg_prompt": "Golden ratio spiral, pattern geometry, minimalist",
+            "bg_seed": 1004,
+            "actions": [
+                {
+                    "time_start": 0,
+                    "pose": "point",
+                    "b_roll": "cache/images/pattern.png"
                 }
             ],
             "camera_effect": "none"

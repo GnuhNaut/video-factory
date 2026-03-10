@@ -66,7 +66,7 @@ def calculate_hash(scene_data: dict, hash_type: str = "audio") -> str:
     return hashlib.md5(content.encode("utf-8")).hexdigest()
 
 
-def check_cache(scene_id: int, current_hash: str, hash_type: str = "audio", output_path: str = None) -> bool:
+def check_cache(scene_id: int, current_hash: str, hash_type: str = "audio", output_path: str = None, sub_id: int = None) -> bool:
     """
     Kiểm tra xem scene này đã được cache chưa.
 
@@ -75,12 +75,16 @@ def check_cache(scene_id: int, current_hash: str, hash_type: str = "audio", outp
         current_hash: Hash hiện tại cần so sánh.
         hash_type: "audio" hoặc "image".
         output_path: Đường dẫn file output (kiểm tra tồn tại).
+        sub_id: ID phụ cho trường hợp 1 scene có nhiều hình ảnh.
 
     Returns:
         True nếu hash trùng VÀ file output tồn tại → có thể skip.
     """
     hashes = _load_hashes()
     key = f"{hash_type}_{scene_id:03d}"
+    if sub_id is not None:
+        key += f"_{sub_id:02d}"
+    
     stored_hash = hashes.get(key, "")
 
     if stored_hash != current_hash:
@@ -93,7 +97,7 @@ def check_cache(scene_id: int, current_hash: str, hash_type: str = "audio", outp
     return True
 
 
-def update_cache(scene_id: int, current_hash: str, hash_type: str = "audio"):
+def update_cache(scene_id: int, current_hash: str, hash_type: str = "audio", sub_id: int = None):
     """
     Cập nhật hash sau khi sinh thành công.
 
@@ -101,9 +105,13 @@ def update_cache(scene_id: int, current_hash: str, hash_type: str = "audio"):
         scene_id: ID của scene.
         current_hash: Hash mới.
         hash_type: "audio" hoặc "image".
+        sub_id: ID phụ cho trường hợp 1 scene có nhiều hình ảnh.
     """
     hashes = _load_hashes()
     key = f"{hash_type}_{scene_id:03d}"
+    if sub_id is not None:
+        key += f"_{sub_id:02d}"
+        
     hashes[key] = current_hash
     _save_hashes(hashes)
 

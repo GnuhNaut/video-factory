@@ -174,11 +174,13 @@ def generate_audio_parallel(
                     scenes[idx]["actual_duration"] = 0
                     if not result.get("skipped"):
                         failed += 1
+                        print(f"\n[Parallel] Scene {result.get('scene_id')} failed: {result.get('error')}")
 
             except Exception as e:
                 scenes[idx]["audio_path"] = ""
                 scenes[idx]["actual_duration"] = 0
                 failed += 1
+                print(f"\n[Parallel] Future exception: {e}")
 
             if progress:
                 progress.update(1)

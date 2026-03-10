@@ -94,31 +94,98 @@ def run_pipeline(config: dict = None, output_json: str = None) -> dict:
 
     for scene in scenes:
         scene_id = scene.get("scene_id", 0)
+        timeline = scene.get("visual_timeline", [])
+        
         try:
-            if cache_enabled:
-                img_hash = calculate_hash(scene, "image")
-                output_path = os.path.join(img_dir, f"bg_{scene_id:03d}.png")
-                if check_cache(scene_id, img_hash, "image", output_path):
-                    scene["bg_image_path"] = output_path
-                    img_cached += 1
-                    continue
+            if timeline:
+                # Handle new visual_timeline format
+                for index, item in enumerate(timeline):
+                    if not item.get("bg_prompt"):
+                        continue
+                        
+                    # Build a temp dict for hash calculation
+                    temp_scene = {
+                        "bg_prompt": item.get("bg_prompt"),
+                        "bg_seed": scene.get("bg_seed", 42)
+                    }
+                    output_path = os.path.join(img_dir, f"bg_{scene_id:03d}_{index:02d}.png")
+                    
+                    # Generate Background
+                    if cache_enabled:
+                        img_hash = calculate_hash(temp_scene, "image")
+                        if check_cache(scene_id, img_hash, "image", output_path, sub_id=index):
+                            item["bg_image_path"] = output_path
+                            # No break here, we need to check b_roll too
+                        else:
+                            # Generate
+                            path = image_provider.generate(
+                                prompt=item.get("bg_prompt", ""),
+                                seed=scene.get("bg_seed", 42),
+                                output_path=output_path
+                            )
+                            item["bg_image_path"] = path
+                            img_generated += 1
+                            update_cache(scene_id, img_hash, "image", sub_id=index)
+                    else:
+                        path = image_provider.generate(
+                            prompt=item.get("bg_prompt", ""),
+                            seed=scene.get("bg_seed", 42),
+                            output_path=output_path
+                        )
+                        item["bg_image_path"] = path
+                        img_generated += 1
 
-            # Generate
-            path = image_provider.generate(
-                prompt=scene.get("bg_prompt", ""),
-                seed=scene.get("bg_seed", 42),
-                output_path=os.path.join(img_dir, f"bg_{scene_id:03d}.png")
-            )
-            scene["bg_image_path"] = path
-            img_generated += 1
+                    # Handle B-Roll if present
+                    b_roll_prompt = item.get("b_roll")
+                    if b_roll_prompt and not b_roll_prompt.endswith(('.png', '.jpg', '.jpeg')):
+                        broll_path = os.path.join(img_dir, f"broll_{scene_id:03d}_{index:02d}.png")
+                        broll_scene = {"bg_prompt": b_roll_prompt, "bg_seed": scene.get("bg_seed", 42)}
+                        
+                        if cache_enabled:
+                            broll_hash = calculate_hash(broll_scene, "image")
+                            if check_cache(scene_id, broll_hash, "image", broll_path, sub_id=f"br_{index}"):
+                                item["b_roll_path"] = broll_path
+                            else:
+                                path = image_provider.generate(prompt=b_roll_prompt, seed=scene.get("bg_seed", 42), output_path=broll_path)
+                                item["b_roll_path"] = path
+                                img_generated += 1
+                                update_cache(scene_id, broll_hash, "image", sub_id=f"br_{index}")
+                        else:
+                            path = image_provider.generate(prompt=b_roll_prompt, seed=scene.get("bg_seed", 42), output_path=broll_path)
+                            item["b_roll_path"] = path
+                            img_generated += 1
+                        
+            else:
+                # Fallback for old schema
+                if cache_enabled:
+                    img_hash = calculate_hash(scene, "image")
+                    output_path = os.path.join(img_dir, f"bg_{scene_id:03d}.png")
+                    if check_cache(scene_id, img_hash, "image", output_path):
+                        scene["bg_image_path"] = output_path
+                        img_cached += 1
+                        continue
 
-            if cache_enabled:
-                img_hash = calculate_hash(scene, "image")
-                update_cache(scene_id, img_hash, "image")
+                # Generate
+                path = image_provider.generate(
+                    prompt=scene.get("bg_prompt", ""),
+                    seed=scene.get("bg_seed", 42),
+                    output_path=os.path.join(img_dir, f"bg_{scene_id:03d}.png")
+                )
+                scene["bg_image_path"] = path
+                img_generated += 1
+
+                if cache_enabled:
+                    img_hash = calculate_hash(scene, "image")
+                    update_cache(scene_id, img_hash, "image")
 
         except Exception as e:
             error_tracker.log_error(scene_id, "image", e)
-            scene["bg_image_path"] = ""
+            if timeline:
+                for item in timeline:
+                    if "bg_image_path" not in item:
+                        item["bg_image_path"] = ""
+            else:
+                scene["bg_image_path"] = ""
 
     print(f"  Generated: {img_generated} | Cached: {img_cached}")
     print(f"  Time: {time.time() - step_start:.1f}s")
@@ -174,8 +241,12 @@ def run_pipeline(config: dict = None, output_json: str = None) -> dict:
     print("  STEP 5/7: Syncing Durations & Saving JSON")
     print("=" * 60)
 
+    from src.audio.sync_checker import update_durations, apply_timeline_scaling
     sync_result = update_durations(scenes, config=config)
     scenes = sync_result["scenes"]
+    
+    # NEW: Apply Dynamic Timing Alignment
+    scenes = apply_timeline_scaling(scenes)
 
     if output_json is None:
         json_dir = os.path.join(PROJECT_ROOT, "storage", "cache", "json")
@@ -212,10 +283,17 @@ def run_pipeline(config: dict = None, output_json: str = None) -> dict:
         project_json_path=output_json,
         config=config
     )
-
+    
+    # NEW: POST-RENDER AUDIT (Phase D)
+    print("=" * 60)
+    print("  STEP 6.5: Auditing Video Quality")
+    print("=" * 60)
+    from src.utils.audit import audit_video
+    audit_results = audit_video(video_path, ffmpeg_path=get_nested(config, "paths", "ffmpeg", default="ffmpeg"))
+    
     print(f"  Time: {time.time() - step_start:.1f}s")
     print()
-    logger.info(f"Video render completed in {time.time() - step_start:.1f}s")
+    logger.info(f"Video render and audit completed in {time.time() - step_start:.1f}s")
 
     # ========================================
     # STEP 7: Generate Thumbnail

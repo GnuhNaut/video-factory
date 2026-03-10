@@ -106,78 +106,43 @@ def render_video(
     concurrency = get_nested(config, "optimization", "render_concurrency", default=2)
 
     # ==========================================
-    # CHUNKING LOGIC (Phase 2)
-    # Gom nhom cac scene sao cho tong thoi gian <= ~90s
+    # SMART CHUNKING LOGIC (Phase 5)
     # ==========================================
-    chunks = []
-    current_chunk_scenes = []
-    current_chunk_duration = 0.0
-    CHUNK_MAX_DURATION = 90.0
+    from src.pipeline.chunker import create_chunks
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    for idx, scene in enumerate(all_scenes):
-        duration = scene.get("actual_duration", scene.get("expected_duration", 5))
-        if current_chunk_duration + duration > CHUNK_MAX_DURATION and current_chunk_scenes:
-            # Luu chunk hien tai
-            chunks.append({
-                "chunk_id": len(chunks) + 1,
-                "scenes": current_chunk_scenes,
-                "duration": current_chunk_duration
-            })
-            # Reset
-            current_chunk_scenes = [scene]
-            current_chunk_duration = duration
-        else:
-            current_chunk_scenes.append(scene)
-            current_chunk_duration += duration
-            
-    # Add last chunk
-    if current_chunk_scenes:
-        chunks.append({
-            "chunk_id": len(chunks) + 1,
-            "scenes": current_chunk_scenes,
-            "duration": current_chunk_duration
-        })
+    chunk_dir = os.path.join(PROJECT_ROOT, "storage", "cache", "json", "chunks")
+    chunk_files = create_chunks(project_data, chunk_dir, target_chunk_duration=60.0)
 
     print("=" * 60)
-    print("  [REMOTION RENDERER - CHUNKING]")
+    print("  [REMOTION RENDERER - SMART CHUNKING]")
     print("=" * 60)
     print(f"  Input: {project_json_path}")
     print(f"  Output: {output_path}")
-    print(f"  Total Chunks: {len(chunks)}")
-    print(f"  Codec: {codec} | CRF: {crf} | FPS: {fps} | Concurrency: {concurrency}")
+    print(f"  Total Chunks: {len(chunk_files)}")
+    print(f"  Codec: {codec} | CRF: {crf} | FPS: {fps} | Concurrency/Chunk: {concurrency}")
     print()
 
     start_time = time.time()
     npx_cmd = "npx.cmd" if os.name == "nt" else "npx"
-    rendered_chunks = []
-
-    for chunk in chunks:
-        chunk_id = chunk["chunk_id"]
-        c_scenes = chunk["scenes"]
-        c_duration = chunk["duration"]
-        c_frames = int(c_duration * fps)
-        
-        # Prepare chunk JSON
-        chunk_data = project_data.copy()
-        chunk_data["scenes"] = c_scenes
-        chunk_props_path = os.path.join(REMOTION_DIR, f"props_chunk_{chunk_id}.json")
-        with open(chunk_props_path, "w", encoding="utf-8") as f:
-            json.dump(chunk_data, f, ensure_ascii=False)
-            
+    rendered_chunks = [None] * len(chunk_files)
+    
+    def render_single_chunk(chunk_path, idx):
+        chunk_id = idx + 1
         chunk_output_path = os.path.join(output_dir, f"{safe_title}_chunk_{chunk_id}.mp4")
         
-        print(f"  -> Rendering Chunk {chunk_id}/{len(chunks)} ({len(c_scenes)} scenes, {c_duration:.1f}s, {c_frames} frames)")
+        print(f"  -> Started Rendering Chunk {chunk_id}/{len(chunk_files)}")
         cmd = [
             npx_cmd, "remotion", "render",
             "src/index.ts",
             "VideoRoot",
             chunk_output_path,
-            f"--props={chunk_props_path}",
+            f"--props={chunk_path}",
             f"--fps={fps}",
             f"--codec={codec}",
             f"--crf={crf}",
             f"--concurrency={concurrency}",
-            "--log=error", # giam log de tranh spam terminal
+            "--log=error", 
         ]
         
         try:
@@ -188,16 +153,29 @@ def render_video(
                 text=True,
                 timeout=3600,
             )
-            
             if result.returncode == 0 and os.path.exists(chunk_output_path):
-                rendered_chunks.append(chunk_output_path)
+                print(f"  -> Finished Chunk {chunk_id}")
+                return idx, chunk_output_path
             else:
                 logger.error(f"Chunk {chunk_id} render failed with exit code: {result.returncode}")
-                return None
-                
+                return idx, None
         except Exception as e:
             logger.error(f"Chunk {chunk_id} render exception: {e}")
-            return None
+            return idx, None
+
+    # Render parallel
+    max_workers = get_nested(config, "optimization", "chunk_workers", default=2)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(render_single_chunk, chunk_file, idx): idx for idx, chunk_file in enumerate(chunk_files)}
+        for future in as_completed(futures):
+            idx, out_path = future.result()
+            if out_path:
+                rendered_chunks[idx] = out_path
+            else:
+                return None
+
+    # Filter out any Nones (should be caught by the return None above, but just in case)
+    rendered_chunks = [c for c in rendered_chunks if c is not None]
 
     # Tat ca cac chunk da render xong. Tien hanh ghep noi FFmpeg
     print("=" * 60)
@@ -214,7 +192,11 @@ def render_video(
     try:
         ffmpeg_cmd = [
             "ffmpeg", "-y", "-f", "concat", "-safe", "0", 
-            "-i", os.path.basename(list_txt_path), "-c", "copy", os.path.basename(output_path)
+            "-i", os.path.basename(list_txt_path), 
+            "-c:v", "copy", 
+            "-c:a", "aac", "-b:a", "128k", 
+            "-af", "aresample=async=1",
+            os.path.basename(output_path)
         ]
         
         print(f"  Command: {' '.join(ffmpeg_cmd)}")
@@ -235,12 +217,12 @@ def render_video(
             print(f"  Total time: {elapsed:.1f}s")
             print(f"{'=' * 60}")
             
-            # Clean up chunks
-            for c in rendered_chunks:
-                try: os.remove(c)
-                except: pass
-            try: os.remove(list_txt_path)
-            except: pass
+            # Clean up chunks and logs
+            from src.utils.cleanup import cleanup_temp_files
+            cleanup_temp_files(PROJECT_ROOT)
+            
+            import gc
+            gc.collect()
             
             logger.info(f"Render complete: {output_path} ({file_size/1024/1024:.1f} MB, {elapsed:.1f}s)")
             return output_path

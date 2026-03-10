@@ -21,7 +21,7 @@
   "llm": {
     "enabled": false,
     "mode": "mock",
-    "mock_file_path": "./data/sample_project.json"
+    "mock_file_path": "./sample_project.json"
   },
   "image_provider": {
     "enabled": false,

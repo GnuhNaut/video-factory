@@ -19,19 +19,10 @@ from src.core.config_loader import load_config, get_nested
 
 def load_mock_script(file_path: str = None, config: dict = None) -> dict:
     """
-    Load kịch bản mẫu từ file JSON.
-
-    Args:
-        file_path: Đường dẫn file JSON. Nếu None, lấy từ config.
-        config: Dict cấu hình. Nếu None, tự load.
-
-    Returns:
-        Dict chứa dữ liệu project (bao gồm scenes).
-
-    Raises:
-        FileNotFoundError: Nếu file không tồn tại.
-        json.JSONDecodeError: Nếu file JSON không hợp lệ.
+    Load kịch bản mẫu từ file JSON theo mock_file_path.
     """
+    import json
+
     if config is None:
         config = load_config()
 

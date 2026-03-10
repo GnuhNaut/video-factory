@@ -29,14 +29,16 @@ def get_llm_prompt_template(topic: str) -> str:
     return f"""Bạn là một chuyên gia viết kịch bản video ngắn (Shorts/Reels) về chủ đề: {topic}.
 Nhiệm vụ của bạn là trả về DUY NHẤT một chuỗi JSON hợp lệ theo đúng cấu trúc sau. KHÔNG giải thích thêm.
 
-YÊU CẦU QUAN TRỌNG VỀ KỊCH BẢN:
-1. Mỗi video có từ 5-10 scenes. Độ dài câu chữ phải tự nhiên, không quá dài mỗi scene.
-2. TÓM TẮT MỖI 2-3 CÂU THOẠI (1 phân cảnh - scene):
-   Trong mỗi scene, kịch bản có thể dài, việc đứng yên một tư thế sẽ gây nhàm chán.
-   Do đó, bạn PHẢI định nghĩa mảng `actions` cho mỗi scene. 
-   - Thay đổi pose / thêm action (như point, explain, walk, happy, etc.) tại các mốc thời gian (time_start) khác nhau trong scene. Ví dụ: bắt đầu ở 0s, chuyển tư thế ở 2.5s, 5.0s.
-   - Thêm "b_roll" (hình ảnh minh hoạ chèn vào clip) ở một số keyframe để làm sinh động.
-   - Thêm "emotion_icon" (sweat, question, bulb, etc.) tại những lúc phù hợp.
+CRITICAL PACING RULES (TRỘN LẪN TIẾNG ANH ĐỂ AI HIỂU RÕ):
+1. SHORT SCENES ONLY: Never create a scene longer than 20 words (approx. 5-8 seconds). Break down long explanations into multiple, consecutive short scenes.
+2. DYNAMIC VISUALS: Every new scene MUST have a distinctly different `bg_prompt` to ensure the background image changes frequently. Vary the camera angles (e.g., wide shot, close-up, over-the-shoulder) and locations.
+3. CONTINUOUS FLOW: Even though scenes are short, the narration `text` must flow naturally from one scene to the next.
+
+YÊU CẦU CHI TIẾT CỦA HỆ THỐNG:
+- Video có từ 10-20 scenes. ĐẢM BẢO mỗi scene không quá 20 từ.
+- Trong mỗi scene, bạn PHẢI định nghĩa mảng `actions` để nhân vật đổi dáng: 0s, 2.5s, 5.0s.
+- Thêm "b_roll" (hình ảnh minh hoạ) và "emotion_icon" (sweat, bulb, question, anger) để làm sinh động.
+- Nếu hành động là "walk", Stickman sẽ tự động di chuyển ngang màn hình.
 
 CẤU TRÚC JSON SCHEMA BẮT BUỘC:
 {schema_str}
@@ -73,7 +75,18 @@ def get_script(topic: str = None, config: dict = None) -> dict:
         # Chế độ Mock — load từ file mẫu
         print("📦 LLM mode: Mock (loading from file)")
         from src.script.mock_data import load_mock_script
-        return load_mock_script(config=config)
+        script = load_mock_script(config=config)
+    
+    # TASK 3: Length Validator (Cơ chế cảnh báo độ dài scene)
+    scenes = script.get("scenes", [])
+    for s in scenes:
+        word_count = s.get("word_count", 0)
+        duration = s.get("expected_duration", 0)
+        if word_count > 35 or duration > 12.0:
+            print(f"⚠️ [WARNING] Scene {s.get('scene_id')} quá dài ({word_count} từ, {duration}s). "
+                  f"Hình nền sẽ bị tĩnh lâu, cân nhắc tối ưu lại Prompt hoặc Mock Data.")
+    
+    return script
 
 
 if __name__ == "__main__":

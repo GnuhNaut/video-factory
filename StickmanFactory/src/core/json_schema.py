@@ -4,28 +4,31 @@ json_schema.py - Định nghĩa schema cho kịch bản video
 Sử dụng jsonschema để validate cấu trúc JSON project files.
 Mỗi project chứa danh sách scenes với các trường bắt buộc.
 """
-# Schema cho một action keyframe trong scene (thay thế cho character_state tĩnh tĩnh)
-ACTION_KEYFRAME_SCHEMA = {
+# Schema cho một frame / sự kiện hình ảnh trên dòng thời gian (thay thế cho character_state/actions tĩnh)
+VISUAL_TIMELINE_SCHEMA = {
     "type": "object",
-    "required": ["time_start", "pose"],
+    "required": ["time_offset", "action", "bg_prompt"],
     "properties": {
-        "time_start": {
+        "time_offset": {
             "type": "number",
             "minimum": 0,
-            "description": "Start time of the action relative to scene start (in seconds)"
+            "description": "Start time of the visual event relative to scene start (in seconds)"
         },
-        "pose": {
+        "bg_prompt": {
             "type": "string",
-            "enum": ["idle", "wave", "point", "walk", "sad", "happy", "explain", "pointing", "counting", "writing", "sitting", "fist_pump"],
-            "description": "Stickman character pose/state"
+            "minLength": 1,
+            "description": "Background prompt for this timeline segment"
+        },
+        "action": {
+            "type": "string",
+            "description": "Stickman character pose or camera action"
         },
         "b_roll": {
             "type": "string",
-            "description": "Optional B-roll description to show at this keyframe"
+            "description": "Optional B-roll description to show at this timeline segment"
         },
         "emotion_icon": {
             "type": "string",
-            "enum": ["sweat", "question", "bulb", "heart", "anger", "none"],
             "description": "Optional emotion icon to appear"
         }
     },
@@ -41,9 +44,7 @@ SCENE_SCHEMA = {
         "word_count",
         "expected_duration",
         "audio_path",
-        "bg_prompt",
-        "bg_seed",
-        "actions"
+        "visual_timeline"
     ],
     "properties": {
         "scene_id": {
@@ -66,25 +67,25 @@ SCENE_SCHEMA = {
             "minimum": 0.1,
             "description": "Expected duration of this scene in seconds"
         },
+        "actual_duration": {
+            "type": "number",
+            "minimum": 0.1,
+            "description": "Actual audio duration of this scene in seconds"
+        },
         "audio_path": {
             "type": "string",
             "description": "Path to the generated audio file"
-        },
-        "bg_prompt": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Prompt for AI background generation"
         },
         "bg_seed": {
             "type": "integer",
             "minimum": 0,
             "description": "Seed for background generation (ensures style consistency)"
         },
-        "actions": {
+        "visual_timeline": {
             "type": "array",
             "minItems": 1,
-            "items": ACTION_KEYFRAME_SCHEMA,
-            "description": "List of character action keyframes in this scene"
+            "items": VISUAL_TIMELINE_SCHEMA,
+            "description": "List of visual timeline events in this scene"
         }
     },
     "additionalProperties": False
