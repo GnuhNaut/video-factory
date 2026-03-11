@@ -77,3 +77,5 @@ project_ready.json
 remotion/props.json
 remotion/thumbnail_props.json
 remotion/public/cache/
+
+remotion\build

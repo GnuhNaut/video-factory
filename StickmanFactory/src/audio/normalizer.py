@@ -54,7 +54,7 @@ def normalize_single(audio_path: str, ffmpeg_path: str,
         ffmpeg_path,
         "-y",
         "-i", audio_path,
-        "-af", f"loudnorm=I={TARGET_LUFS}:TP={TARGET_TP}:LRA={TARGET_LRA}",
+        "-af", f"loudnorm=I={TARGET_LUFS}",
         "-ar", str(SAMPLE_RATE),
         temp_path
     ]

@@ -160,14 +160,23 @@ export const Stickman: React.FC<StickmanProps> = ({
         ? interpolate(activeFrame, [0, 90], [50, -50], { extrapolateRight: "clamp" })
         : 0;
 
-    // Breathing effect
-    const breatheAmount = Math.sin(frame / 10) * 0.02;
-    const scaleY = 1 + breatheAmount;
+    // --- ANIMATION POLISH (Phase B & Stickman Upgrade) ---
+    // Breathing cycle
+    const breathingSpeed = 8;
+    const breathingDepth = 0.025;
+    const breatheAmount = Math.sin(frame / breathingSpeed) * breathingDepth;
 
-    // Bounce effect only on the start of a scene (activeFrame close to 0) if no previousAction is given
+    // Anticipation (Squash) when changing states
+    const isChangingState = previousAction !== action;
+    const anticipationSquash = isChangingState
+        ? interpolate(transitionProgress, [0, 0.3, 1], [0, -0.1, 0], { extrapolateRight: "clamp" })
+        : 0;
+
+    const scaleY = 1 + breatheAmount + anticipationSquash;
+
+    // Bounce effect only on the start of a scene
     const currentScale = scale * (previousAction === "idle" && activeFrame < 15 ? interpolate(transitionProgress, [0, 1], [0.8, 1]) : 1);
 
-    // --- ANIMATION POLISH (Phase B) ---
     // Simple pseudo-random noise for micro-movements
     const seed = (activeFrame % 1000) / 1000;
     const noiseX = Math.sin(frame * 0.5 + seed) * 1.2;
@@ -175,9 +184,6 @@ export const Stickman: React.FC<StickmanProps> = ({
 
     // Secondary motion: Sway
     const sway = Math.sin(frame / 15) * 1.5;
-
-    // Follow-through: Limbs lag behind horizontal movement
-    const followThrough = isMoving ? interpolate(activeFrame % 30, [0, 15, 30], [-2, 2, -2]) : 0;
 
     const svgStyle: React.CSSProperties = {
         position: "absolute",
@@ -187,27 +193,45 @@ export const Stickman: React.FC<StickmanProps> = ({
         height: `${300 * currentScale}px`,
         transform: `scaleY(${scaleY}) translateX(${noiseX + sway}px) translateY(${noiseY}px) rotate(${sway * 0.5}deg)`,
         transformOrigin: "bottom center",
+        filter: "drop-shadow(0px 8px 12px rgba(0,0,0,0.6))",
+        transition: "opacity 0.2s ease",
+        willChange: "transform",
         opacity: interpolate(activeFrame, [0, 10], [0, 1], { extrapolateRight: "clamp" })
     };
 
     return (
         <svg viewBox="0 0 200 300" style={svgStyle} xmlns="http://www.w3.org/2000/svg">
-            <line x1={pose.headX} y1={pose.neckY} x2={pose.headX} y2={pose.bodyBottom} stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-            <path d={leftArmPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-            <path d={rightArmPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-            <path d={legLPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-            <path d={legRPath} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
+            {/* Outline (Thick Black layer) */}
+            <g stroke="#000000" strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" fill="none">
+                <line x1={pose.headX} y1={pose.neckY} x2={pose.headX} y2={pose.bodyBottom} />
+                <path d={leftArmPath} />
+                <path d={rightArmPath} />
+                <path d={legLPath} />
+                <path d={legRPath} />
+                <circle cx={pose.headX} cy={pose.headY} r={25} />
+            </g>
 
-            <circle cx={pose.headX} cy={pose.headY} r={25} fill="none" stroke={color} strokeWidth={lineWidth} strokeLinecap="round" />
-            <circle cx={pose.headX - 8} cy={pose.headY - 3} r={2.5} fill={color} />
-            <circle cx={pose.headX + 8} cy={pose.headY - 3} r={2.5} fill={color} />
-            <path d={mouthPath} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" />
+            {/* Inner (Thin main color layer) */}
+            <g stroke={color || "#FFFFFF"} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" fill="none">
+                <line x1={pose.headX} y1={pose.neckY} x2={pose.headX} y2={pose.bodyBottom} />
+                <path d={leftArmPath} />
+                <path d={rightArmPath} />
+                <path d={legLPath} />
+                <path d={legRPath} />
+                <circle cx={pose.headX} cy={pose.headY} r={25} />
+            </g>
 
-            {action === "wave" && <circle cx={pose.handRX} cy={pose.handRY} r={4} fill={color} />}
+            {/* Eyes */}
+            <circle cx={pose.headX - 8} cy={pose.headY - 3} r={2.5} fill="#000000" />
+            <circle cx={pose.headX + 8} cy={pose.headY - 3} r={2.5} fill="#000000" />
+            <path d={mouthPath} fill="none" stroke="#000000" strokeWidth={2} strokeLinecap="round" />
+
+            {/* Accent Details */}
+            {action === "wave" && <circle cx={pose.handRX} cy={pose.handRY} r={4} fill={color || "#FFFFFF"} />}
             {(action === "point" || action === "pointing" || action === "counting") && (
                 <>
-                    <line x1={pose.handRX - 10} y1={pose.handRY - 7} x2={pose.handRX} y2={pose.handRY} stroke={color} strokeWidth={2} strokeLinecap="round" />
-                    <line x1={pose.handRX - 10} y1={pose.handRY + 7} x2={pose.handRX} y2={pose.handRY} stroke={color} strokeWidth={2} strokeLinecap="round" />
+                    <line x1={pose.handRX - 10} y1={pose.handRY - 7} x2={pose.handRX} y2={pose.handRY} stroke={color || "#FFFFFF"} strokeWidth={2} strokeLinecap="round" />
+                    <line x1={pose.handRX - 10} y1={pose.handRY + 7} x2={pose.handRX} y2={pose.handRY} stroke={color || "#FFFFFF"} strokeWidth={2} strokeLinecap="round" />
                 </>
             )}
             {(action === "sad" || action === "tired") && <circle cx={pose.headX - 10} cy={pose.headY + 3} r={2} fill={accentColor} opacity={0.8} />}

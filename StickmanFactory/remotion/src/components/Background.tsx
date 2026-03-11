@@ -108,20 +108,32 @@ export const Background: React.FC<BackgroundProps> = ({
                 }
 
                 return (
-                    <Img
-                        key={index}
-                        src={staticFile(item.bg_image_path)}
-                        style={{
-                            position: "absolute",
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            transform,
-                            transformOrigin: "center center",
-                            opacity,
-                            zIndex: index
-                        }}
-                    />
+                    <React.Fragment key={index}>
+                        <Img
+                            src={staticFile(item.bg_image_path)}
+                            style={{
+                                position: "absolute",
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                transform,
+                                transformOrigin: "center center",
+                                opacity,
+                                zIndex: index * 2 // Ensure space for overlay
+                            }}
+                        />
+                        {/* Dimming overlay to make Stickman pop out */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                width: "100%",
+                                height: "100%",
+                                backgroundColor: "rgba(0, 0, 0, 0.5)", // 50% darkness
+                                opacity,
+                                zIndex: index * 2 + 1
+                            }}
+                        />
+                    </React.Fragment>
                 );
             })}
         </div>

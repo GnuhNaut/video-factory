@@ -1,5 +1,5 @@
 import React from "react";
-import { Composition, Sequence, getInputProps } from "remotion";
+import { Composition, Series, getInputProps } from "remotion";
 import { Scene } from "./components/Scene";
 import { Thumbnail } from "./components/Thumbnail";
 
@@ -80,45 +80,38 @@ const FPS = 30;
 
 /**
  * VideoRoot: Ghép nối tất cả scenes thành video hoàn chỉnh.
- * Sử dụng Remotion Sequence để xếp cảnh nối tiếp nhau.
+ * Sử dụng Remotion Series để xếp cảnh nối tiếp nhau.
  */
-const VideoComposition: React.FC<ProjectData> = (props) => {
+export const VideoComposition: React.FC<ProjectData> = (props) => {
     const scenes = props.scenes || [];
-    const TRANSITION_FRAMES = 15; // 0.5s fade overlap
-
-    let currentFrame = 0;
+    const TRANSITION_FRAMES = 15;
 
     return (
-        <>
+        <Series>
             {scenes.map((scene, i) => {
                 const duration = scene.actual_duration || scene.expected_duration || 5;
                 const baseDurationInFrames = Math.ceil(duration * FPS);
-
-                // Add transition padding to duration so it overlaps cleanly
                 const isLast = i === scenes.length - 1;
+
+                const offset = i === 0 ? 0 : -TRANSITION_FRAMES;
                 const durationInFrames = baseDurationInFrames + (isLast ? 0 : TRANSITION_FRAMES);
 
-                const fromFrame = currentFrame;
-
-                // Next scene starts before this one ends
-                currentFrame += baseDurationInFrames;
-
                 return (
-                    <Sequence
+                    <Series.Sequence
                         key={scene.scene_id}
-                        from={fromFrame}
                         durationInFrames={durationInFrames}
-                        name={`Scene ${scene.scene_id}`}
+                        offset={offset}
+                        name={`Scene_${scene.scene_id}`}
                     >
                         <Scene
                             data={scene}
                             durationInFrames={durationInFrames}
                             transitionFrames={isLast ? 0 : TRANSITION_FRAMES}
                         />
-                    </Sequence>
+                    </Series.Sequence>
                 );
             })}
-        </>
+        </Series>
     );
 };
 

@@ -76,29 +76,37 @@ def render_video(
             logger.info(f"Skipped render - output exists: {output_path}")
             return output_path
 
-    # Chuan bi props cho Remotion
+    # Chuẩn bị props cho Remotion (copy assets vào public/cache)
+    import shutil
     public_cache_dir = os.path.join(REMOTION_DIR, "public", "cache")
     os.makedirs(os.path.join(public_cache_dir, "audio"), exist_ok=True)
     os.makedirs(os.path.join(public_cache_dir, "images"), exist_ok=True)
 
-    all_scenes = project_data.get("scenes", [])
-    for scene in all_scenes:
-        for key in ["audio_path", "bg_image_path"]:
-            path = scene.get(key, "")
-            if path:
-                if not os.path.isabs(path):
-                    src_abs = os.path.abspath(os.path.join(PROJECT_ROOT, path))
-                else:
-                    src_abs = path
+    def process_asset_path(path_value):
+        if not path_value: return ""
+        src_abs = os.path.abspath(os.path.join(PROJECT_ROOT, path_value)) if not os.path.isabs(path_value) else path_value
+        dest_sub = "audio" if src_abs.lower().endswith(('.wav', '.mp3')) else "images"
+        filename = os.path.basename(src_abs)
+        dest_abs = os.path.join(public_cache_dir, dest_sub, filename)
 
-                dest_sub = "audio" if src_abs.endswith(('.wav', '.mp3')) else "images"
-                filename = os.path.basename(src_abs)
-                dest_abs = os.path.join(public_cache_dir, dest_sub, filename)
+        if os.path.exists(src_abs):
+            shutil.copy2(src_abs, dest_abs)
+        return f"cache/{dest_sub}/{filename}"
 
-                if os.path.exists(src_abs):
-                    shutil.copy2(src_abs, dest_abs)
-
-                scene[key] = f"cache/{dest_sub}/{filename}"
+    for scene in project_data.get("scenes", []):
+        scene["audio_path"] = process_asset_path(scene.get("audio_path"))
+        if scene.get("bg_image_path"):
+            scene["bg_image_path"] = process_asset_path(scene.get("bg_image_path"))
+        
+        for timeline_item in scene.get("visual_timeline", []):
+            if timeline_item.get("bg_image_path"):
+                timeline_item["bg_image_path"] = process_asset_path(timeline_item["bg_image_path"])
+            if timeline_item.get("b_roll_path"):
+                timeline_item["b_roll_path"] = process_asset_path(timeline_item["b_roll_path"])
+                
+        for action_item in scene.get("actions", []):
+            if action_item.get("b_roll_path"):
+                action_item["b_roll_path"] = process_asset_path(action_item["b_roll_path"])
 
     fps = get_nested(config, "video", "fps", default=get_nested(config, "project", "fps", default=30))
     codec = get_nested(config, "render", "codec", default="h264")
@@ -186,7 +194,7 @@ def render_video(
     with open(list_txt_path, "w", encoding="utf-8") as f:
         for chunk_file in rendered_chunks:
             # QUAN TRONG: Dung ten file tuong doi theo yeu cau de tranh roi loan \ va / tren Windows
-            rel_chunk = os.path.basename(chunk_file)
+            rel_chunk = os.path.basename(chunk_file).replace("\\", "/")
             f.write(f"file '{rel_chunk}'\n")
             
     try:
