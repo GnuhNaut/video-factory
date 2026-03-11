@@ -285,15 +285,19 @@ def run_pipeline(config: dict = None, output_json: str = None) -> dict:
     )
     
     # NEW: POST-RENDER AUDIT (Phase D)
-    print("=" * 60)
-    print("  STEP 6.5: Auditing Video Quality")
-    print("=" * 60)
-    from src.utils.audit import audit_video
-    audit_results = audit_video(video_path, ffmpeg_path=get_nested(config, "paths", "ffmpeg", default="ffmpeg"))
+    audit_results = None
+    if video_path:
+        print("=" * 60)
+        print("  STEP 6.5: Auditing Video Quality")
+        print("=" * 60)
+        from src.utils.audit import audit_video
+        audit_results = audit_video(video_path, ffmpeg_path=get_nested(config, "paths", "ffmpeg", default="ffmpeg"))
+    else:
+        print("  [WARNING] Render failed, skipping audit.")
     
     print(f"  Time: {time.time() - step_start:.1f}s")
     print()
-    logger.info(f"Video render and audit completed in {time.time() - step_start:.1f}s")
+    logger.info(f"Video render completed in {time.time() - step_start:.1f}s")
 
     # ========================================
     # STEP 7: Generate Thumbnail

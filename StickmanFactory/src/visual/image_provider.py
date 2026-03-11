@@ -20,31 +20,27 @@ def get_image_provider(config: dict = None) -> BaseImageProvider:
     """
     Factory: Tạo ImageProvider dựa trên config.
 
+    Ưu tiên: config.visual.provider (mới) > config.image_provider.mode (cũ).
+
     Args:
         config: Dict cấu hình. Nếu None, tự load.
 
     Returns:
-        Instance của PlaceholderProvider hoặc AI provider (tương lai).
+        Instance của PlaceholderProvider hoặc LocalAIProvider.
     """
     if config is None:
         config = load_config()
 
-    mode = get_nested(config, "image_provider", "mode", default="placeholder")
+    # Ưu tiên config mới: visual.provider
+    provider_type = get_nested(config, "visual", "provider", default=None)
 
-    if mode == "ai":
-        enabled = get_nested(config, "image_provider", "enabled", default=False)
-        if enabled:
-            # Khi có AI provider, import và trả về ở đây
-            # from src.visual.providers.local_ai import LocalAIProvider
-            # return LocalAIProvider(config)
-            raise NotImplementedError(
-                "AI Image Provider chua duoc trien khai.\n"
-                "Dat config.image_provider.mode = 'placeholder' de dung anh placeholder.\n"
-                "Hoac trien khai class LocalAIProvider trong providers/."
-            )
-        else:
-            print("  [ImageProvider] AI mode selected but not enabled. Falling back to placeholder.")
-            return PlaceholderProvider(config)
+    # Fallback: config cũ image_provider.mode
+    if provider_type is None:
+        provider_type = get_nested(config, "image_provider", "mode", default="placeholder")
+
+    if provider_type == "local_ai":
+        from src.visual.providers.local_ai import LocalAIProvider
+        return LocalAIProvider(config)
     else:
         return PlaceholderProvider(config)
 

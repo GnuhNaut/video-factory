@@ -35,6 +35,10 @@
       "base_color": "#3498db"
     }
   },
+  "visual": {
+    "provider": "local_ai",
+    "ai_model_path": "stabilityai/sdxl-turbo"
+  },
   "optimization": {
     "cache_enabled": true,
     "audio_parallel_workers": 4,

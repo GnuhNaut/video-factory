@@ -42,19 +42,45 @@ export const Background: React.FC<BackgroundProps> = ({
                     ? Math.round(nextItem.time_offset * fps)
                     : durationInFrames;
 
-                // Opacity: Fade in over CROSSFADE_FRAMES, fade out over CROSSFADE_FRAMES (if there's a next item)
+                // Opacity: Fade in over CROSSFADE_FRAMES, fade out over (if there's a next item)
+                // CRITICAL: inputRange must be strictly monotonically increasing
+                let inputRange, outputRange;
+
+                if (index === 0) {
+                    // First scene: no fade-in needed
+                    const fadeOutStart = nextItem
+                        ? Math.max(1, endFrame - CROSSFADE_FRAMES)
+                        : Math.max(1, endFrame - 1);
+                    const safeFadeOut = fadeOutStart < endFrame ? fadeOutStart : endFrame - 1;
+
+                    inputRange = [0, Math.max(1, safeFadeOut), Math.max(2, endFrame)];
+                    outputRange = [1, 1, nextItem ? 0 : 1];
+                } else {
+                    // Normal scene
+                    const fadeInStart = Math.max(0, startFrame - CROSSFADE_FRAMES);
+                    const realFadeInStart = fadeInStart < startFrame ? fadeInStart : startFrame - 1;
+
+                    const fadeOutStart = nextItem
+                        ? Math.max(startFrame + 1, endFrame - CROSSFADE_FRAMES)
+                        : Math.max(startFrame + 1, endFrame - 1);
+                    const realFadeOutStart = fadeOutStart < endFrame ? fadeOutStart : endFrame - 1;
+
+                    // Ensure sequence is strictly increasing
+                    const p1 = Math.max(0, realFadeInStart);
+                    const p2 = Math.max(p1 + 1, startFrame);
+                    const p3 = Math.max(p2 + 1, realFadeOutStart);
+                    const p4 = Math.max(p3 + 1, endFrame);
+
+                    inputRange = [p1, p2, p3, p4];
+                    outputRange = [0, 1, 1, nextItem ? 0 : 1];
+                }
+
                 const opacity = interpolate(
                     frame,
-                    [
-                        startFrame - CROSSFADE_FRAMES,
-                        startFrame,
-                        endFrame - (nextItem ? CROSSFADE_FRAMES : 0),
-                        endFrame
-                    ],
-                    [index === 0 ? 1 : 0, 1, 1, nextItem ? 0 : 1],
+                    inputRange,
+                    outputRange,
                     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
                 );
-
                 // Ken Burns 
                 const effect = item.camera_effect || "none";
                 let transform = "";
